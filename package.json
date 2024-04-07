@@ -1,5 +1,5 @@
 {
-  "name": "something",
+  "name": "business-data-extractor",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -15,7 +15,12 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "format-all": "eslint --fix '**/*.{js,jsx}'",
+    "lint-all": "eslint '**/*.{js,jsx}'",
+    "format-staged": "lint-staged",
+    "lint-diff": "echo '{\"extends\": [\"plugin:diff/diff\"]}' | eslint --resolve-plugins-relative-to . -c /dev/stdin '**/*.{js,jsx}'",
+    "format-diff": "echo '{\"extends\": [\"plugin:diff/diff\"]}' | eslint --fix --resolve-plugins-relative-to . -c /dev/stdin '**/*.{js,jsx}'"
   },
   "eslintConfig": {
     "extends": [
@@ -33,6 +38,18 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-diff": "^2.0.3",
+    "eslint-plugin-prettier": "^5.1.3",
+    "lint-staged": "^15.2.2",
+    "prettier": "3.2.5"
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "eslint --fix"
     ]
   }
 }
