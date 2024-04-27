@@ -1,5 +1,10 @@
 {
-  "extends": ["eslint:recommended", "react-app", "react-app/jest", "plugin:prettier/recommended"],
+  "extends": [
+    "eslint:recommended",
+    "react-app",
+    "react-app/jest",
+    "plugin:prettier/recommended"
+  ],
   "parserOptions": {
     "sourceType": "module",
     "ecmaVersion": 2022

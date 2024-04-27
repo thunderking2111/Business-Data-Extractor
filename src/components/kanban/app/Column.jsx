@@ -1,0 +1,87 @@
+import React, { useState, forwardRef } from "react";
+import { useSelector } from "react-redux";
+import { SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { selectColumnById, selectColumnTaskIds } from "../columns/columnsSlice";
+import { selectTaskById } from "../tasks/tasksSlice";
+import ViewTaskModal from "./ViewTaskModal";
+
+export const TaskElement = forwardRef(
+    ({ taskId, setViewTaskModal, setActiveTask, ...props }, ref) => {
+        const task = useSelector((state) => selectTaskById(state, taskId));
+        const totalSubtasks = task?.subtasks?.length;
+        const completedSubtasks = task?.subtasks?.filter((subtask) => subtask.completed).length;
+
+        if (!task) {
+            return null;
+        }
+
+        return (
+            <div ref={ref} {...props}>
+                <button
+                    onClick={() => {
+                        if (setActiveTask && setViewTaskModal) {
+                            setActiveTask(task);
+                            setViewTaskModal(true);
+                        }
+                    }}
+                    className="group flex w-full flex-col rounded-lg bg-white py-[23px] pl-[16px] shadow dark:bg-dark-gray"
+                >
+                    <div className="heading-md mb-[8px] text-left text-black group-hover:text-main-purple dark:text-white">
+                        {task?.title}
+                    </div>
+                    <div className="body-md text-medium-gray">{`${completedSubtasks} of ${totalSubtasks} subtasks`}</div>
+                </button>
+            </div>
+        );
+    },
+);
+
+const SortableTask = (props) => {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+        id: props.taskId,
+    });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return <TaskElement ref={setNodeRef} {...listeners} style={style} {...attributes} {...props} />;
+};
+
+const Column = ({ columnId }) => {
+    const [viewTaskModal, setViewTaskModal] = useState(false);
+    const [activeTask, setActiveTask] = useState(null);
+
+    const column = useSelector((state) => selectColumnById(state, columnId));
+    const taskIds = useSelector((state) => selectColumnTaskIds(state, columnId));
+    const activeTaskSelected = useSelector((state) =>
+        activeTask ? selectTaskById(state, activeTask.id) : undefined,
+    );
+
+    return (
+        <SortableContext items={taskIds} strategy={rectSortingStrategy}>
+            <div className="flex w-[280px] shrink-0 flex-col gap-[20px]">
+                <div className="heading-sm uppercase">
+                    {column?.title} ({column.taskIds?.length})
+                </div>
+                <ViewTaskModal
+                    task={activeTaskSelected}
+                    open={viewTaskModal}
+                    onClose={() => setViewTaskModal(false)}
+                />
+                {taskIds.map((id) => (
+                    <SortableTask
+                        setViewTaskModal={setViewTaskModal}
+                        setActiveTask={setActiveTask}
+                        taskId={id}
+                        key={id}
+                    />
+                ))}
+            </div>
+        </SortableContext>
+    );
+};
+
+export default Column;
