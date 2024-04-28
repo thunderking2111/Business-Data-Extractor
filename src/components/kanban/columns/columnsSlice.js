@@ -15,7 +15,7 @@ const columnsSlice = createSlice({
         columnAdded: {
             reducer: columnsAdapter.addOne,
             prepare: (column) => ({
-                payload: { ...column, id: nanoid() },
+                payload: { ...column, id: column.id || nanoid() },
             }),
         },
         columnUpdated: columnsAdapter.updateOne,

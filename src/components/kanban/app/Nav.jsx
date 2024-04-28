@@ -43,8 +43,8 @@ const Nav = () => {
 
     return (
         <>
-            <div className="flex h-[50px] items-center dark:bg-dark-gray md:h-[60px]">
-                <div className="flex w-full items-center justify-between pr-[16px] sm:pl-[24px] sm:pr-[23px]">
+            <div className="flex items-center dark:bg-dark-gray">
+                <div className="flex w-full items-center justify-between pr-[16px] sm:pl-[24px] sm:pr-[23px] h-[50px] md:h-[60px]">
                     <div className="">
                         <button
                             className="flex items-center"
@@ -70,6 +70,7 @@ const Nav = () => {
                         <NewTaskModal
                             taskId=""
                             open={newTaskModal}
+                            closeModal={() => setNewTaskModal(false)}
                             onClose={() => setNewTaskModal(false)}
                         />
                         <button onClick={() => setEditBoardPopup(true)} disabled={!activeBoardId}>

@@ -14,7 +14,7 @@ const tasksSlice = createSlice({
                 tasksAdapter.addOne(state, action.payload.task);
             },
             prepare: (task) => ({
-                payload: { task: { ...task, id: nanoid() } },
+                payload: { task: { ...task, id: task.id || nanoid() } },
                 meta: {},
                 error: {},
             }),

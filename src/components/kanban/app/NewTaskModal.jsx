@@ -1,16 +1,14 @@
 import { Dialog, Listbox } from "@headlessui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { selectActiveColumns } from "../columns/columnsSlice";
 import { selectTaskById, taskAdded, taskUpdated } from "../tasks/tasksSlice";
 import Modal from "./Modal";
-import { selectActiveBoardId, toggleNewTaskModalIsOpen } from "./uiState";
+import { selectActiveBoardId } from "./uiState";
 import ChevronDown from "../assets/icon-chevron-down.svg";
-import { ReactComponent as IconCross } from "../assets/icon-cross.svg";
 
-const NewTaskModal = ({ taskId, open, onClose }) => {
-    const [subtasks, setSubtasks] = useState([""]);
+const NewTaskModal = ({ taskId, open, closeModal, onClose }) => {
     const task = useSelector((state) => (taskId ? selectTaskById(state, taskId) : undefined));
     const activeBoard = useSelector(selectActiveBoardId);
     const activeColumns = useSelector(selectActiveColumns);
@@ -22,8 +20,9 @@ const NewTaskModal = ({ taskId, open, onClose }) => {
             description: "",
             subtasks: [""],
             status: activeColumns[0] ? activeColumns[0].title : "",
+            resource: task ? "" : "Google Maps",
         }),
-        [activeColumns],
+        [activeColumns, task],
     );
 
     const { register, handleSubmit, control, reset } = useForm({
@@ -70,22 +69,14 @@ const NewTaskModal = ({ taskId, open, onClose }) => {
                 }),
             );
         }
-        dispatch(toggleNewTaskModalIsOpen());
+        closeModal();
         reset();
     });
-
-    const handleNewSubtask = () => setSubtasks([...subtasks, ""]);
-
-    const handleDeleteSubtask = (i) => {
-        const newSubtasks = [...subtasks];
-        newSubtasks.splice(i, 1);
-        setSubtasks(newSubtasks);
-    };
 
     return (
         <Modal open={open} onClose={onClose}>
             <Dialog.Title className="heading-lg mb-[24px] dark:text-white">
-                Add New Task
+                {task ? "Edit Task" : "Add New Task"}
             </Dialog.Title>
             <form onSubmit={onSubmit}>
                 <div className="body-md mb-[8px] text-medium-gray">Title</div>
@@ -101,35 +92,6 @@ const NewTaskModal = ({ taskId, open, onClose }) => {
 recharge the batteries a little."
                     {...register("description")}
                 />
-                <div className="body-md mb-[8px] text-medium-gray">Subtasks</div>
-                {subtasks.map((_, i) => (
-                    <div key={i} className="mb-[16px] flex items-center">
-                        <input
-                            className="body-lg w-full rounded border border-medium-gray/25 py-[8px] pl-[16px] outline-none focus:border-main-purple dark:border-medium-gray/50 dark:bg-dark-gray dark:text-white dark:focus:border-main-purple"
-                            placeholder="e.g. Make Coffee"
-                            {...register(`subtasks.${i}`)}
-                        />
-                        <button
-                            type="button"
-                            className="body-md ml-[16px] text-medium-gray hover:text-black"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleDeleteSubtask(i);
-                            }}
-                        >
-                            <IconCross className="stroke-2 hover:stroke-red" />
-                        </button>
-                    </div>
-                ))}
-                <button
-                    className="mb-[24px] h-[40px] w-full rounded-full bg-main-purple/10 text-center text-[13px] font-bold leading-[23px] text-main-purple hover:bg-main-purple/20 dark:bg-white"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        handleNewSubtask();
-                    }}
-                >
-                    + Add Subtask
-                </button>
                 <div className="body-md mb-[8px] text-medium-gray">Status</div>
                 <Controller
                     name="status"
@@ -156,6 +118,41 @@ recharge the batteries a little."
                         </Listbox>
                     )}
                 />
+                {!task && (
+                    <>
+                        <div className="body-md mb-[8px] text-medium-gray">Resource</div>
+                        <Controller
+                            name="resource"
+                            control={control}
+                            render={({ field }) => (
+                                <>
+                                    <Listbox value={field.value} onChange={field.onChange}>
+                                        <div className="relative">
+                                            <Listbox.Button className="font-body-lg flex h-[40px] w-full items-center justify-between rounded border border-medium-gray/25 px-[16px] py-[8px] text-left text-[13px] leading-[23px] dark:text-white">
+                                                <div>{field.value}</div>
+                                                <img src={ChevronDown} alt="" />
+                                            </Listbox.Button>
+                                            <Listbox.Options className="absolute top-full mt-[10px] w-full rounded rounded-b bg-white text-medium-gray dark:bg-dark-gray">
+                                                {[
+                                                    { value: "google-maps", title: "Google Maps" },
+                                                    { value: "bing", title: "Bing Maps" },
+                                                ].map((column) => (
+                                                    <Listbox.Option
+                                                        key={column.title}
+                                                        className="body-lg py-[8px] pl-[16px] hover:bg-main-purple/10"
+                                                        value={column.value}
+                                                    >
+                                                        {column.title}
+                                                    </Listbox.Option>
+                                                ))}
+                                            </Listbox.Options>
+                                        </div>
+                                    </Listbox>
+                                </>
+                            )}
+                        />
+                    </>
+                )}
                 <button
                     type="submit"
                     className="mt-[24px] h-[40px] w-full rounded-full bg-main-purple text-center text-[13px] font-bold leading-[23px] text-white hover:bg-main-purple-hover"

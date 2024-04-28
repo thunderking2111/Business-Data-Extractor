@@ -48,7 +48,7 @@ const MainPanel = () => {
     };
 
     return (
-        <div className="flex h-full w-full gap-[24px] overflow-x-auto bg-light-gray-light-bg px-[24px] pt-[24px] dark:bg-very-dark-gray">
+        <div className="bde-mainpanel flex h-full w-full gap-[24px] overflow-x-auto overflow-y-auto bg-light-gray-light-bg px-[24px] pt-[24px] dark:bg-very-dark-gray">
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCorners}

@@ -13,7 +13,7 @@ const boardsSlice = createSlice({
         boardAdded: {
             reducer: boardsAdapter.addOne,
             prepare: (board) => ({
-                payload: { ...board, id: nanoid() },
+                payload: { ...board, id: board.id || nanoid() },
             }),
         },
         boardUpdated: boardsAdapter.updateOne,
