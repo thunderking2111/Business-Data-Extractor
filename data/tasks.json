@@ -1,0 +1,40 @@
+{
+    "tasks": [
+        {
+            "id": 1,
+            "name": "Scrapping 1",
+            "stage": "todo",
+            "projectId": 1
+        },
+        {
+            "id": 2,
+            "name": "Scrapping 2",
+            "stage": "ongoing",
+            "projectId": 1
+        },
+        {
+            "id": 3,
+            "name": "Scrapping 3",
+            "stage": "todo",
+            "projectId": 2
+        },
+        {
+            "id": 4,
+            "name": "Scrapping 4",
+            "stage": "todo",
+            "projectId": 2
+        },
+        {
+            "id": 5,
+            "name": "Scrapping 5",
+            "stage": "ongoing",
+            "projectId": 2
+        },
+        {
+            "id": 6,
+            "name": "Scrapping 6",
+            "stage": "done",
+            "projectId": 3
+        }
+    ]
+}

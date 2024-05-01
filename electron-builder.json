@@ -1,0 +1,8 @@
+{
+    "directories": {
+      "output": "dist-builder"
+    },
+    "win": {
+      "target": "nsis"
+    }
+  }

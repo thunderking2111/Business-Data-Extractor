@@ -9,6 +9,8 @@
 # production
 /build
 /build/**/*
+*/build
+**/build/**/*
 
 # Logs
 logs
@@ -102,6 +104,7 @@ out
 # Nuxt.js build / generate output
 .nuxt
 dist
+dist-builder
 
 # Gatsby files
 .cache/

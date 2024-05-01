@@ -1,14 +1,28 @@
 {
   "name": "business-data-extractor",
   "version": "0.1.0",
+  "author": "Rahul Prajapati",
+  "license": "MIT",
   "private": true,
   "main": "main.js",
-  "homepage": "./",
+  "type": "commonjs",
   "dependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "csv-writer": "^1.6.0",
+    "exceljs": "^4.4.0",
+    "puppeteer": "^22.7.1",
+    "wait-on": "^7.2.0"
+  },
+  "devDependencies": {
+    "electron": "^29.3.1",
+    "electron-is-dev": "^3.0.1"
   },
   "scripts": {
-    "start": "concurrently -k \"cd react && npm run react-start\" \"cd electron && npm run electron-dev\""
+    "start": "concurrently -k \"cd react-client && npm run react-start\" \"npm run electron-dev\"",
+    "electron-start": "electron .",
+    "electron-dev": "wait-on tcp:3000 && electron .",
+    "build-win-packager": "electron-packager . BusinessDataExtractor --platform=win32 --arch=x64 --out=dist --overwrite --electron-version=29.3.1",
+    "build-win-builder": "electron-builder"
   },
   "browserslist": {
     "production": [
