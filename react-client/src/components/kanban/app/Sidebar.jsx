@@ -1,7 +1,7 @@
 import { Switch, Tab } from "@headlessui/react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectAllBoards, selectBoardIds } from "../boards/boardsSlice";
+import { selectAllBoards, selectBoardIds } from "../boards/boardsSlice2";
 import useScreenSize from "../utilities/useScreenSize";
 import NewBoardModal from "./NewBoardModal";
 import {
@@ -61,7 +61,7 @@ const BoardList = () => {
                                     key={board.id}
                                 >
                                     <BoardIcon className="mr-[16px] ui-selected:stroke-white group-hover:ui-not-selected:stroke-main-purple" />
-                                    <div>{board.title}</div>
+                                    <div>{board.name}</div>
                                 </Tab>
                             ))}
                         </Tab.List>

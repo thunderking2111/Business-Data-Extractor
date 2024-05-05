@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { boardRemoved, selectAllBoards } from "../boards/boardsSlice";
+import { boardRemoved, selectAllBoards } from "../boards/boardsSlice2";
 import useScreenSize from "../utilities/useScreenSize";
 import DeleteModal from "./DeleteModal";
 import MobileMenu from "./MobileMenu";
@@ -52,7 +52,7 @@ const Nav = () => {
                             disabled={!isSmallScreen}
                         >
                             <div className="heading-xl dark:text-white">
-                                {activeBoard ? activeBoard.title : ""}
+                                {activeBoard ? activeBoard.name : ""}
                             </div>
                             {isSmallScreen && <img className="ml-[8px]" src={chevronDown} alt="" />}
                         </button>

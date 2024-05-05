@@ -2,8 +2,8 @@ import { Dialog } from "@headlessui/react";
 import { useEffect, useMemo } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { boardAdded, boardUpdated, selectBoardById } from "../boards/boardsSlice";
-import { columnAdded, columnsRemoved, selectActiveColumns } from "../columns/columnsSlice";
+import { boardAdded, boardUpdated, selectBoardById } from "../boards/boardsSlice2";
+import { columnAdded, columnsRemoved, selectAllColumns } from "../columns/columnsSlice";
 import Modal from "./Modal";
 import { setActiveBoardId, toggleNewBoardModal } from "./uiState";
 import { ReactComponent as IconCross } from "../assets/icon-cross.svg";
@@ -11,7 +11,7 @@ import { ReactComponent as IconCross } from "../assets/icon-cross.svg";
 const NewBoardModal = ({ boardId, open, onClose, setNewColumn }) => {
     const dispatch = useDispatch();
     const board = useSelector((state) => (boardId ? selectBoardById(state, boardId) : undefined));
-    const boardColumns = useSelector(selectActiveColumns);
+    const boardColumns = useSelector(selectAllColumns);
 
     const defaultValues = useMemo(
         () => ({
@@ -34,7 +34,7 @@ const NewBoardModal = ({ boardId, open, onClose, setNewColumn }) => {
         if (board) {
             reset({
                 name: board.title,
-                columns: boardColumns?.map((column) => ({ name: column?.title })) || [{ name: "" }],
+                columns: boardColumns?.map((column) => ({ name: column?.name })) || [{ name: "" }],
             });
             if (setNewColumn) {
                 append({ name: "" });

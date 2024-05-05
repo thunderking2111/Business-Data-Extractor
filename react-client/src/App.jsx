@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import data from "./data/board_data.json";
 import MainPanel from "./components/kanban/app/MainPanel";
 import Nav from "./components/kanban/app/Nav";
 import KanbanSidebar from "./components/kanban/app/Sidebar";
@@ -10,10 +9,10 @@ import {
     selectIsDarkMode,
     setActiveBoardId,
 } from "./components/kanban/app/uiState";
-import { selectBoardIds } from "./components/kanban/boards/boardsSlice";
+import { selectBoardIds } from "./components/kanban/boards/boardsSlice2";
 import { useData } from "./data";
 
-import { ActionButtons, DataTable, DataTableFooter, Sidebar } from "./components";
+import TaskPage from "./components/TaskPage";
 
 const Home = ({ darkMode }) => {
     return (
@@ -28,13 +27,26 @@ const Home = ({ darkMode }) => {
 };
 
 const App = () => {
-    useData(data);
+    const processData = useData();
     const darkMode = useSelector(selectIsDarkMode);
     const boardIds = useSelector(selectBoardIds);
     const dataLoaded = useSelector(selectDataLoaded);
     const dispatch = useDispatch();
 
     useEffect(() => {
+        window.electronAPI?.sendProjectDataReq();
+        window.electronAPI?.receiveProjectData((event, data) => {
+            console.log("Called");
+            processData(data);
+        });
+        return () => {
+            window.electronAPI?.removeAllListeners();
+        };
+    }, []);
+
+    useEffect(() => {
+        console.log("inside dataloaded useeffect");
+        console.log(boardIds);
         if (boardIds.length > 0) {
             dispatch(setActiveBoardId(boardIds[0]));
         }
@@ -45,19 +57,7 @@ const App = () => {
             <Routes>
                 <Route exact path="/" element={<Home darkMode={darkMode} />} />
                 <Route exact path="/home" element={<Home darkMode={darkMode} />} />
-                <Route
-                    path="/task/:task-id"
-                    element={
-                        <div className="flex w-screen h-screen gap-2">
-                            <Sidebar />
-                            <div className="w-full flex flex-col p-2 h-screen overflow-auto">
-                                <ActionButtons />
-                                <DataTable />
-                                <DataTableFooter />
-                            </div>
-                        </div>
-                    }
-                />
+                <Route path="/task/:task-id" element={<TaskPage />} />
             </Routes>
         </Router>
     );

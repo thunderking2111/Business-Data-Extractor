@@ -1,44 +1,32 @@
-import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setDataLoaded } from "./components/kanban/app/uiState";
-import { boardAdded, boardsRemoved } from "./components/kanban/boards/boardsSlice";
+import { boardAdded, boardsRemoved } from "./components/kanban/boards/boardsSlice2";
 import { columnAdded, columnsRemoved } from "./components/kanban/columns/columnsSlice";
 import { taskAdded, tasksRemoved } from "./components/kanban/tasks/tasksSlice";
 
-export const useData = ({ boards }) => {
+export const useData = () => {
     const dispatch = useDispatch();
-    useEffect(() => {
+
+    const processData = (data) => {
         const boardIds = [];
         const columnIds = [];
         const taskIds = [];
+        const { projects, tasks, columns } = data;
 
-        for (const board of boards) {
-            const boardAction = boardAdded({ title: board.name, columnIds: [] });
+        for (const project of projects) {
+            const boardAction = boardAdded(project);
             boardIds.push(boardAction.payload.id);
             dispatch(boardAction);
-            for (const column of board.columns) {
-                const columnAction = columnAdded({
-                    title: column.name,
-                    boardId: boardAction.payload.id,
-                    taskIds: [],
-                });
-                columnIds.push(columnAction.payload.id);
-                dispatch(columnAction);
-                for (const task of column.tasks) {
-                    const taskAction = taskAdded({
-                        title: task.title,
-                        description: task.description,
-                        column: columnAction.payload.id,
-                        board: boardAction.payload.id,
-                        subtasks: task.subtasks.map((subtask) => ({
-                            title: subtask.title,
-                            completed: subtask.isCompleted,
-                        })),
-                    });
-                    taskIds.push(taskAction.payload.task.id);
-                    dispatch(taskAction);
-                }
-            }
+        }
+        for (const column of columns) {
+            const columnAction = columnAdded(column);
+            columnIds.push(columnAction.payload.id);
+            dispatch(columnAction);
+        }
+        for (const task of tasks) {
+            const taskAction = taskAdded(task);
+            taskIds.push(taskAction.payload.id);
+            dispatch(taskAction);
         }
         dispatch(setDataLoaded(true));
 
@@ -47,5 +35,7 @@ export const useData = ({ boards }) => {
             dispatch(columnsRemoved(columnIds));
             dispatch(tasksRemoved(taskIds));
         };
-    }, []);
+    };
+
+    return processData;
 };

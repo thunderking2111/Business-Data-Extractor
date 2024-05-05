@@ -1,6 +1,54 @@
+import { useEffect } from "react";
 import CustomSelect from "./CustomSelect";
 
-const Sidebar = () => {
+const Sidebar = ({
+    keywordsRef,
+    locationsRef,
+    useProxyRef,
+    emailRef,
+    delayRef,
+    maxQueryRef,
+    taskData,
+    task,
+}) => {
+    const disabled = task ? task.stage !== "todo" : true;
+debugger;
+    useEffect(() => {
+        if (taskData?.locations && locationsRef.current) {
+            locationsRef.current.value = taskData.locations.join("\n");
+        }
+    }, [taskData, locationsRef]);
+
+    useEffect(() => {
+        if (taskData?.keywords && keywordsRef.current) {
+            keywordsRef.current.value = taskData.keywords.join("\n");
+        }
+    }, [taskData, keywordsRef]);
+
+    useEffect(() => {
+        if (taskData?.useProxy && useProxyRef.current) {
+            useProxyRef.current.value = taskData.useProxy;
+        }
+    }, [taskData, useProxyRef]);
+
+    useEffect(() => {
+        if (taskData?.emailMandatody && emailRef.current) {
+            emailRef.current.value = taskData.emailMandatody;
+        }
+    }, [taskData, emailRef]);
+
+    useEffect(() => {
+        if (taskData?.delay && delayRef.current) {
+            delayRef.current.value = taskData.delay;
+        }
+    }, [taskData, delayRef]);
+
+    useEffect(() => {
+        if (taskData?.maxQueryLimit && maxQueryRef.current) {
+            maxQueryRef.current.value = taskData.maxQueryLimit;
+        }
+    }, [taskData, maxQueryRef]);
+
     return (
         <div className="relative flex grow shrink-0 overflow-auto h-screen w-1/4 max-w-[300px] flex-col rounded-xl bg-blue-gray-50 bg-opacity-60 bg-clip-border p-4 text-gray-700 shadow-xl shadow-blue-gray-900/5 gap-3">
             <div className="flex grow flex-col gap-3">
@@ -8,6 +56,8 @@ const Sidebar = () => {
                     <div className="w-full flex grow">
                         <div className="relative w-full flex grow">
                             <textarea
+                                ref={label === "Keywords" ? keywordsRef : locationsRef}
+                                disabled={disabled}
                                 className="peer h-full grow shrink w-full resize-none rounded-[7px] border border-blue-gray-200 border-t-transparent bg-white px-3 py-2.5 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:resize-none disabled:border-0 disabled:bg-blue-gray-50"
                                 placeholder=" "
                             />
@@ -20,6 +70,8 @@ const Sidebar = () => {
                 <div className="relative flex flex-col text-gray-700 bg-white shadow-md rounded-xl bg-clip-border p-3 gap-3">
                     <div className="flex items-center">
                         <input
+                            ref={emailRef}
+                            disabled={disabled}
                             id="checked-checkbox"
                             type="checkbox"
                             value=""
@@ -34,6 +86,8 @@ const Sidebar = () => {
                     </div>
                     <div className="flex items-center">
                         <input
+                            ref={useProxyRef}
+                            disabled={disabled}
                             id="checked-checkbox"
                             type="checkbox"
                             value=""
@@ -47,10 +101,14 @@ const Sidebar = () => {
                         </label>
                     </div>
                     <CustomSelect
+                        ref={maxQueryRef}
+                        disabled={disabled}
                         label={"Max Result Per Query"}
                         optionsList={[{ value: "max", text: "Maximum" }]}
                     />
                     <CustomSelect
+                        ref={delayRef}
+                        disabled={disabled}
                         label={"Delay"}
                         optionsList={[{ value: "random", text: "Random" }]}
                     />

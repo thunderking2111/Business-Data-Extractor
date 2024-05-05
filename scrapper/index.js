@@ -1,23 +1,30 @@
 const puppeteer = require("puppeteer");
 const { CONSTANTS } = require("./misc/utils");
-const scrapGoogleMaps = require("./plugins/google_maps_scrapper");
 
 let browser = null;
 
-async function startScrapping(scrapperFn, DEV_MODE) {
+async function* startScrapping(scrapperFn, keywords, locations,  DEV_MODE) {
     browser = await puppeteer.launch({
         headless: !DEV_MODE,
         defaultViewport: { width: CONSTANTS.BROWSER_WIDTH, height: CONSTANTS.BROWSER_HEIGHT },
     });
-    let results = [];
+
+    yield { stage: "ongoing" };
+
     try {
-        results = await scrapperFn(browser);
+        for (const keyword of keywords) {
+            for (const location of locations) {
+                yield { currentKeyword: `${keyword} in ${location}` };
+                const resultGenerator = await scrapperFn(browser, keyword, location);
+                for await (const result of resultGenerator) {
+                    yield { row: result };
+                }
+            }
+        }
     } finally {
+        yield { stage: "done" };
         browser.close();
     }
-
-    console.log("Final Results: ", results.length);
-    return results;
 }
 
 module.exports = { startScrapping };

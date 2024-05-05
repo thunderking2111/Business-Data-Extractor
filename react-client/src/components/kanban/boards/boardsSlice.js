@@ -1,6 +1,5 @@
 import { createEntityAdapter, createSelector, createSlice } from "@reduxjs/toolkit";
 import { nanoid } from "nanoid";
-import { columnAdded } from "../columns/columnsSlice";
 
 const boardsAdapter = createEntityAdapter();
 
@@ -19,11 +18,6 @@ const boardsSlice = createSlice({
         boardUpdated: boardsAdapter.updateOne,
         boardsRemoved: boardsAdapter.removeMany,
         boardRemoved: boardsAdapter.removeOne,
-    },
-    extraReducers: (builder) => {
-        builder.addCase(columnAdded, (state, action) => {
-            state.entities[action.payload.boardId].columnIds.push(action.payload.id);
-        });
     },
 });
 

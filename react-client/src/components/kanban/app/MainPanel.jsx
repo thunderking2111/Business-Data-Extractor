@@ -10,7 +10,7 @@ import {
     useSensors,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { selectActiveBoardColumnIds, selectAllColumns } from "../columns/columnsSlice";
+import { selectColumnIds, selectAllColumns } from "../columns/columnsSlice";
 import { selectAllTasks, taskMoved } from "../tasks/tasksSlice";
 import Column, { TaskElement } from "./Column";
 import NewBoardModal from "./NewBoardModal";
@@ -21,7 +21,7 @@ const MainPanel = () => {
     const [editBoardModal, setEditBoardModal] = useState(false);
     const [draggedId, setDraggedId] = useState(null);
     const activeBoardId = useSelector(selectActiveBoardId);
-    const columnIds = useSelector(selectActiveBoardColumnIds);
+    const columnIds = useSelector(selectColumnIds);
     const columns = useSelector(selectAllColumns);
     const tasks = useSelector(selectAllTasks);
 
@@ -59,14 +59,6 @@ const MainPanel = () => {
                 <DragOverlay>{draggedId ? <TaskElement taskId={draggedId} /> : null}</DragOverlay>
             </DndContext>
 
-            <button
-                onClick={() => setEditBoardModal(true)}
-                className="group mb-[50px] mt-[39px] grow max-h-[400px] w-[280px] rounded bg-gradient-to-t from-[#E9EFFA]/50 to-[#E9EFFA] dark:from-[#2B2C3780] dark:to-[#2B2C37]"
-            >
-                <span className="heading-xl block w-[280px] text-medium-gray group-hover:text-main-purple">
-                    + New Column
-                </span>
-            </button>
             <NewBoardModal
                 setNewColumn
                 boardId={activeBoardId}

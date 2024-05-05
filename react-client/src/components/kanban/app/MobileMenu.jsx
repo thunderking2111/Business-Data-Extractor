@@ -1,7 +1,7 @@
 import { Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Dialog, Switch, Tab, Transition } from "@headlessui/react";
-import { selectAllBoards, selectBoardIds } from "../boards/boardsSlice";
+import { selectAllBoards, selectBoardIds } from "../boards/boardsSlice2";
 import NewBoardModal from "./NewBoardModal";
 import { selectActiveBoardId, selectIsDarkMode, setActiveBoardId, setDarkMode } from "./uiState";
 import { ReactComponent as BoardIcon } from "../assets/icon-board.svg";

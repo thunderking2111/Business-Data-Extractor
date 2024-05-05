@@ -3,11 +3,17 @@ const path = require("path");
 const { channels } = require("./shared/constants");
 const { startScrapping } = require("./scrapper");
 const scrapGoogleMaps = require("./scrapper/plugins/google_maps_scrapper");
+const { HEADERS: googleMapsHeaders } = require("./scrapper/plugins/google_maps_scrapper");
+const scrapBingMaps = require("./scrapper/plugins/bing_maps_scrapper");
 
 const isDev = true;
 
+const datas = {};
+
+let mainWindow;
+
 function createWindow() {
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
         minWidth: 400,
@@ -42,16 +48,51 @@ app.on("activate", () => {
 });
 
 ipcMain.on(channels.SCRAPP, async (event, data) => {
-    if (data.resource === "google") {
-        const results = await startScrapping(scrapGoogleMaps, isDev);
-        event.sender.send(channels.SCRAPP, results);
+    let scrapperFn;
+    let headers;
+    switch (data.resource) {
+        case "google":
+            scrapperFn = scrapGoogleMaps;
+            headers = googleMapsHeaders;
+            break;
+        case "bing":
+            scrapperFn = scrapBingMaps;
+        default:
+            break;
+    }
+    console.log("Scrapping Started");
+    let counter = 0;
+    try {
+        mainWindow.webContents.send(channels.TASK_UPDATES, { headers });
+        const resultGenerator = startScrapping(scrapGoogleMaps, data.keywords, data.locations, false);
+        for await (const result of resultGenerator) {
+            if (result.row) {
+                result.row.id = ++counter;
+            }
+            console.log(result);
+            mainWindow.webContents.send(channels.TASK_UPDATES, result);
+        }
+    } catch (error) {
+        console.log(error);
     }
 });
 
 ipcMain.on(channels.PROJECT_DATA, async (event, data) => {
     const res = {
-        projects: require("./data/projects.json"),
-        tasks: require("./data/tasks.json"),
+        projects: require("./data/projects.json").projects,
+        tasks: require("./data/tasks.json").tasks,
+        columns: require("./data/columns.json").columns,
     }
+    console.log("Res:", res);
     event.sender.send(channels.PROJECT_DATA, res);
+});
+
+ipcMain.on(channels.TASK_DATA, (event, data) => {
+    const { taskId } = data;
+    const res = {
+        locations: ["ahmedabad", "mumbai"],
+        keywords: ["school"],
+        rows: [],
+    }
+    event.sender.send(channels.TASK_DATA, res);
 });

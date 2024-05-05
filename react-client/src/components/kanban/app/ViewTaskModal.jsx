@@ -1,7 +1,7 @@
 import { Dialog, Listbox, Switch } from "@headlessui/react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectActiveColumns } from "../columns/columnsSlice";
+import { selectAllColumns } from "../columns/columnsSlice";
 import { taskMoved, taskRemoved, taskUpdated } from "../tasks/tasksSlice";
 import DeleteTaskModal from "./DeleteModal";
 import Modal from "./Modal";
@@ -20,7 +20,7 @@ const ViewTaskModal = ({ task, open, onClose }) => {
     // const task = useSelector((state: RootState) =>
     //   taskId ? selectTaskById(state, taskId) : undefined,
     // )
-    const activeColumns = useSelector(selectActiveColumns);
+    const activeColumns = useSelector(selectAllColumns);
     const totalSubtasks = task?.subtasks?.length;
     const completedSubtasks = task?.subtasks?.filter((subtask) => subtask.completed).length;
     const dispatch = useDispatch();
@@ -168,7 +168,7 @@ const ViewTaskModal = ({ task, open, onClose }) => {
                                     className="body-lg py-[8px] pl-[16px] hover:bg-main-purple/10"
                                     value={column}
                                 >
-                                    {column.title}
+                                    {column.name}
                                 </Listbox.Option>
                             ))}
                         </Listbox.Options>

@@ -2,7 +2,7 @@ import { Dialog, Listbox } from "@headlessui/react";
 import { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { selectActiveColumns } from "../columns/columnsSlice";
+import { selectAllColumns } from "../columns/columnsSlice";
 import { selectTaskById, taskAdded, taskUpdated } from "../tasks/tasksSlice";
 import Modal from "./Modal";
 import { selectActiveBoardId } from "./uiState";
@@ -11,15 +11,14 @@ import ChevronDown from "../assets/icon-chevron-down.svg";
 const NewTaskModal = ({ taskId, open, closeModal, onClose }) => {
     const task = useSelector((state) => (taskId ? selectTaskById(state, taskId) : undefined));
     const activeBoard = useSelector(selectActiveBoardId);
-    const activeColumns = useSelector(selectActiveColumns);
+    const activeColumns = useSelector(selectAllColumns);
     const dispatch = useDispatch();
 
     const defaultValues = useMemo(
         () => ({
-            title: "",
+            name: "",
             description: "",
-            subtasks: [""],
-            status: activeColumns[0] ? activeColumns[0].title : "",
+            status: activeColumns[0] ? activeColumns[0].name : "",
             resource: task ? "" : "Google Maps",
         }),
         [activeColumns, task],
@@ -32,10 +31,9 @@ const NewTaskModal = ({ taskId, open, closeModal, onClose }) => {
     useEffect(() => {
         if (task) {
             reset({
-                title: task.title,
+                name: task.name,
                 description: task.description,
-                subtasks: task.subtasks.map((subtask) => subtask.title),
-                status: activeColumns.find((col) => col.id === task.column)?.title,
+                status: activeColumns.find((col) => col.id === task.stage)?.name,
             });
         } else {
             reset(defaultValues);
@@ -46,33 +44,24 @@ const NewTaskModal = ({ taskId, open, closeModal, onClose }) => {
         if (task) {
             dispatch(
                 taskUpdated(task, {
-                    title: data.title,
+                    name: data.name,
                     description: data.description,
-                    subtasks: data.subtasks.map((subtask) => ({
-                        title: subtask,
-                        completed: false,
-                    })),
-                    column: activeColumns.find((column) => column.title === data.status).id,
+                    stage: activeColumns.find((column) => column.name === data.status).id,
                 }),
             );
         } else {
             dispatch(
                 taskAdded({
-                    title: data.title,
+                    name: data.name,
                     description: data.description,
-                    subtasks: data.subtasks.map((subtask) => ({
-                        title: subtask,
-                        completed: false,
-                    })),
-                    column: activeColumns.find((column) => column.title === data.status).id,
-                    board: activeBoard,
+                    stage: activeColumns.find((column) => column.name === data.status).id,
+                    boardId: activeBoard,
                 }),
             );
         }
         closeModal();
         reset();
     });
-
     return (
         <Modal open={open} onClose={onClose}>
             <Dialog.Title className="heading-lg mb-[24px] dark:text-white">
@@ -83,7 +72,7 @@ const NewTaskModal = ({ taskId, open, closeModal, onClose }) => {
                 <input
                     className="body-lg mb-[24px] w-full rounded border border-medium-gray/25 py-[8px] pl-[16px] outline-none focus:border-main-purple dark:border-medium-gray/50 dark:bg-dark-gray dark:text-white dark:focus:border-main-purple"
                     placeholder="e.g. Take Coffee Break"
-                    {...register("title")}
+                    {...register("name")}
                 />
                 <div className="body-md mb-[8px] text-medium-gray">Description</div>
                 <textarea
@@ -108,9 +97,9 @@ recharge the batteries a little."
                                         <Listbox.Option
                                             key={column.id}
                                             className="body-lg py-[8px] pl-[16px] hover:bg-main-purple/10"
-                                            value={column.title}
+                                            value={column.name}
                                         >
-                                            {column.title}
+                                            {column.name}
                                         </Listbox.Option>
                                     ))}
                                 </Listbox.Options>
@@ -138,11 +127,11 @@ recharge the batteries a little."
                                                     { value: "bing", title: "Bing Maps" },
                                                 ].map((column) => (
                                                     <Listbox.Option
-                                                        key={column.title}
+                                                        key={column.id}
                                                         className="body-lg py-[8px] pl-[16px] hover:bg-main-purple/10"
                                                         value={column.value}
                                                     >
-                                                        {column.title}
+                                                        {column.name}
                                                     </Listbox.Option>
                                                 ))}
                                             </Listbox.Options>

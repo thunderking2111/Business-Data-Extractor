@@ -5,6 +5,24 @@ const { sleep, CONSTANTS, ElNotFoundError } = require("../misc/utils");
 
 const URL = "https://www.google.com/maps";
 
+const HEADERS = [
+    { key: "url", value: "URL" },
+    { key: "title", value: "Title" },
+    { key: "rating", value: "Rating" },
+    { key: "reviewScore", value: "Review Score" },
+    { key: "category", value: "Category" },
+    { key: "address", value: "Address" },
+    { key: "website", value: "Website" },
+    { key: "phone", value: "Phone" },
+    { key: "monday", value: "Monday" },
+    { key: "tuesday", value: "Tuesday" },
+    { key: "wednesday", value: "Wednesday" },
+    { key: "thursday", value: "Thursday" },
+    { key: "friday", value: "Friday" },
+    { key: "saturday", value: "Saturday" },
+    { key: "sunday", value: "Sunday" }
+];
+
 const SELECTORS = {
     searchBoxInput: "input#searchboxinput",
     searchButton: "button#searchbox-searchbutton",
@@ -25,7 +43,7 @@ const SELECTORS = {
 /**
  * @param {import("puppeteer").Browser} browser
  */
-async function scrapGoogleMaps(browser, keyword, location) {
+async function* scrapGoogleMaps(browser, keyword, location) {
     const page = await browser.newPage();
     await page.goto(URL, { timeout: 60000 });
     await page.waitForSelector(SELECTORS.searchBoxInput);
@@ -113,6 +131,14 @@ async function scrapGoogleMaps(browser, keyword, location) {
             const phoneEl = infoBox.querySelector(SELECTORS.phone);
             res.phone = phoneEl && phoneEl.textContent.sanitize();
             const openingHoursBtn = infoBox.querySelector(SELECTORS.openHoursButton);
+            res.monday = "";
+            res.tuesday = "";
+            res.wednesday = "";
+            res.wednesday = "";
+            res.thursday = "";
+            res.friday = "";
+            res.saturday = "";
+            res.sunday = "";
             if (openingHoursBtn) {
                 let openingHoursTable = undefined;
                 try {
@@ -127,26 +153,23 @@ async function scrapGoogleMaps(browser, keyword, location) {
                     const openingHoursRows = Array.from(
                         openingHoursTable.querySelectorAll("tbody tr"),
                     );
-                    const data = {};
                     for (const row of openingHoursRows) {
                         const tdEls = row.querySelectorAll("td");
                         if (tdEls[0] && tdEls[1]) {
-                            data[tdEls[0].textContent.sanitize()] = tdEls[1].textContent.sanitize();
-                        } else {
-                            data[""] = "";
+                            res[tdEls[0].textContent.sanitize().toLowerCase()] = tdEls[1].textContent.sanitize();
                         }
                     }
-                    res.openingHoursData = data;
                 }
             }
             return res;
         });
         if (res) {
-            results.push(res);
+            yield res;
         }
         await sleep(CONSTANTS.ITEM_SWITCH_DELAY);
     }
-    return results;
+    await page.close();
 }
 
 module.exports = scrapGoogleMaps;
+module.exports.HEADERS = HEADERS;

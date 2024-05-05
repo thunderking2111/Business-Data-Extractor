@@ -11,25 +11,35 @@ const tasksSlice = createSlice({
     reducers: {
         taskAdded: {
             reducer: (state, action) => {
+                // debugger;
                 tasksAdapter.addOne(state, action.payload.task);
             },
-            prepare: (task) => ({
-                payload: { task: { ...task, id: task.id || nanoid() } },
-                meta: {},
-                error: {},
-            }),
+            prepare: (task) => {
+                // debugger;
+                return {
+                    payload: {
+                        task: {
+                            ...task,
+                            projectId: task.projectId || task.boardId,
+                            id: task.id || nanoid(),
+                        },
+                    },
+                    meta: {},
+                    error: {},
+                };
+            },
         },
         taskUpdated: {
             reducer: tasksAdapter.updateOne,
             prepare: (task, changes) => ({
-                payload: { id: task.id, changes, oldColumn: task.column },
+                payload: { id: task.id, projectId: task.projectId, changes, oldStage: task.stage },
             }),
         },
         taskRemoved: (state, action) => tasksAdapter.removeOne(state, action.payload.task.id),
         tasksRemoved: tasksAdapter.removeMany,
         taskMoved: (state, action) => {
-            const { task, newColumnId } = action.payload;
-            state.entities[task.id].column = newColumnId;
+            const { task, newStageId } = action.payload;
+            state.entities[task.id].stage = newStageId;
         },
     },
 });

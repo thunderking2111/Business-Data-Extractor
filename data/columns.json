@@ -1,0 +1,24 @@
+{
+    "columns": [
+        {
+            "id": "todo",
+            "name": "To-Do",
+            "stage": "todo"
+        },
+        {
+            "id": "ongoing",
+            "name": "On Going",
+            "stage": "ongoing"
+        },
+        {
+            "id": "paused",
+            "name": "Paused",
+            "stage": "paused"
+        },
+        {
+            "id": "done",
+            "name": "Done",
+            "stage": "done"
+        }
+    ]
+}
