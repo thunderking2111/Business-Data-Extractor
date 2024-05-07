@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
     DndContext,
@@ -11,19 +11,35 @@ import {
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { selectColumnIds, selectAllColumns } from "../columns/columnsSlice";
-import { selectAllTasks, taskMoved } from "../tasks/tasksSlice";
+import { taskAdded, taskMoved } from "../tasks/tasksSlice";
 import Column, { TaskElement } from "./Column";
 import NewBoardModal from "./NewBoardModal";
 import { selectActiveBoardId } from "./uiState";
+import { selectBoardById } from "../boards/boardsSlice2";
 
 const MainPanel = () => {
     const dispatch = useDispatch();
     const [editBoardModal, setEditBoardModal] = useState(false);
     const [draggedId, setDraggedId] = useState(null);
     const activeBoardId = useSelector(selectActiveBoardId);
+    console.log("Mainpanel");
+    const activeBoard = useSelector((state) =>
+        activeBoardId ? selectBoardById(state, activeBoardId) : undefined,
+    );
     const columnIds = useSelector(selectColumnIds);
     const columns = useSelector(selectAllColumns);
-    const tasks = useSelector(selectAllTasks);
+    const tasks = activeBoard?.tasks;
+
+    useEffect(() => {
+        const newTaskHandle = (event, data) => {
+            const { task } = data;
+            dispatch(taskAdded(task));
+        };
+        window.electronAPI.receiveNewTaskRecord(newTaskHandle);
+        return () => {
+            window.electronAPI.removeNewTaskListener(newTaskHandle);
+        };
+    }, []);
 
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),

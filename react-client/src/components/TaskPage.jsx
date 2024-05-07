@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
 import { ActionButtons, Sidebar, DataTable, DataTableFooter } from ".";
@@ -10,8 +10,7 @@ const TaskPage = () => {
     activeTaskId = parseInt(activeTaskId, 10);
     const [taskData, setTaskData] = useState({ rows: [] });
     const task = useSelector((state) => selectTaskById(state, activeTaskId));
-    // const dispatch = useDispatch();
-    debugger;
+
     // To be passed to Sidebar
     const keywordsRef = useRef(null);
     const locationsRef = useRef(null);
@@ -33,8 +32,10 @@ const TaskPage = () => {
         };
 
         const onTaskUpdate = (event, data) => {
-            debugger;
             console.log(data);
+            if (task?.id !== data.taskId) {
+                return;
+            }
             // Object.assign(task, data);
             setTaskData((prevTaskData) => {
                 const newTaskData = { ...prevTaskData }; // Create a shallow copy of the previous state
@@ -59,9 +60,8 @@ const TaskPage = () => {
         };
     }, [activeTaskId]);
 
-    const getDataFromRefs = () => {
+    const getDataFromRefs = (alertIfNotFound = true) => {
         const res = {};
-        debugger;
         res.locations = locationsRef.current.value
             .split(/\r?\n/)
             .filter((term) => term.trim() !== "");
@@ -71,13 +71,13 @@ const TaskPage = () => {
         res.useProxy = useProxyRef.current.checked;
         res.emailMandatory = emailRef.current.checked;
         res.delay = delayRef.current.value;
-        res.mayQueryLimit = maxQueryRef.current.value;
+        res.maxResPerQuery = maxQueryRef.current.value;
         console.log(res);
-        if (!res.locations.length) {
+        if (alertIfNotFound && !res.locations.length) {
             alert("Please add atleast 1 value in Locations");
             return;
         }
-        if (!res.keywords.length) {
+        if (alertIfNotFound && !res.keywords.length) {
             alert("Please add atleast 1 value in Keywords");
             return;
         }
@@ -93,7 +93,6 @@ const TaskPage = () => {
                 emailRef={emailRef}
                 delayRef={delayRef}
                 maxQueryRef={maxQueryRef}
-                taskData={taskData}
                 task={task}
                 get
             />

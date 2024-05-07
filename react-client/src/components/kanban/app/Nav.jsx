@@ -73,13 +73,17 @@ const Nav = () => {
                             closeModal={() => setNewTaskModal(false)}
                             onClose={() => setNewTaskModal(false)}
                         />
-                        <button onClick={() => setEditBoardPopup(true)} disabled={!activeBoardId}>
+                        <button
+                            className="p-3 rounded border-white border-2 hover:border-2 hover:border-gray-400"
+                            onClick={() => setEditBoardPopup(true)}
+                            disabled={!activeBoardId}
+                        >
                             <img className="h-min" src={threeDots} alt="three dots" />
                         </button>
                         {editBoardPopup && (
                             <div
                                 ref={editMenuRef}
-                                className="fixed right-[24px] top-[90px] mt-[10px] flex w-[192px] flex-col items-start gap-[16px] rounded-lg bg-white p-[16px] text-left text-medium-gray dark:bg-very-dark-gray"
+                                className="fixed right-[24px] top-[60px] mt-[10px] flex w-[192px] flex-col items-start gap-[16px] rounded-lg bg-white p-[16px] text-left text-medium-gray dark:bg-very-dark-gray"
                             >
                                 <button
                                     onClick={() => {
@@ -108,10 +112,11 @@ const Nav = () => {
                         />
                         <DeleteModal
                             title="Delete Project"
-                            description={`Are you sure you want to delete the '${activeBoard?.title}' project? This action will remove all columns and tasks and cannot be reversed.`}
+                            description={`Are you sure you want to delete the '${activeBoard?.name}' project? This action will remove all columns and tasks and cannot be reversed.`}
                             onConfirm={() => {
                                 dispatch(boardRemoved(activeBoardId));
                                 dispatch(setActiveBoardId(undefined));
+                                window.electronAPI.removeProjectRecord(activeBoardId);
                             }}
                             open={deleteBoardModalOpen}
                             onClose={() => setDeleteBoardModalOpen(false)}

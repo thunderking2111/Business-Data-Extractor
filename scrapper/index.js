@@ -3,7 +3,7 @@ const { CONSTANTS } = require("./misc/utils");
 
 let browser = null;
 
-async function* startScrapping(scrapperFn, keywords, locations,  DEV_MODE) {
+async function* startScrapping(scrapperFn, keywords, locations, maxResPerQuery, delay, DEV_MODE) {
     browser = await puppeteer.launch({
         headless: !DEV_MODE,
         defaultViewport: { width: CONSTANTS.BROWSER_WIDTH, height: CONSTANTS.BROWSER_HEIGHT },
@@ -17,7 +17,7 @@ async function* startScrapping(scrapperFn, keywords, locations,  DEV_MODE) {
                 yield { currentKeyword: `${keyword} in ${location}` };
                 const resultGenerator = await scrapperFn(browser, keyword, location);
                 for await (const result of resultGenerator) {
-                    yield { row: result };
+                    yield { row: result, keyword, location };
                 }
             }
         }

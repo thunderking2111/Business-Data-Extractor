@@ -1,4 +1,5 @@
 const DataTable = ({ taskData, task }) => {
+    let rowNo = 1;
     return (
         <div className="flex-1 overflow-auto border rounded-[6px] m-2">
             <div className="relative w-full shadow-md sm:rounded-lg">
@@ -58,7 +59,7 @@ const DataTable = ({ taskData, task }) => {
                                         scope="row"
                                         className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                                     >
-                                        {row.id}
+                                        {++rowNo}
                                     </th>
                                     {taskData.headers.map((header) => (
                                         <td

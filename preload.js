@@ -13,4 +13,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
     stopListeningForTaskUpdates: (cb) => ipcRenderer.removeListener(channels.TASK_UPDATES, cb),
     removeAllListeners: () => ipcRenderer.removeAllListeners(),
     channels,
+
+    updateTaskRecord: (data) => ipcRenderer.send(channels.UPDATE_TASK_DB, data),
+    removeTaskRecord: (taskId) => ipcRenderer.send(channels.REMOVE_TASK_DB, taskId),
+    createTaskRecord: (data) => ipcRenderer.send(channels.CREATE_TASK_DB, data),
+    receiveNewTaskRecord: (cb) => ipcRenderer.on(channels.CREATE_TASK_DB, cb),
+    removeNewTaskListener: (cb) => ipcRenderer.removeListener(channels.CREATE_TASK_DB, cb),
+    updateProjectRecord: (data) => ipcRenderer.send(channels.UPDATE_PROJECT_DB, data),
+    removeProjectRecord: (projectId) => ipcRenderer.send(channels.REMOVE_PROJECT_DB, projectId),
+    createProjectRecord: (data) => ipcRenderer.send(channels.CREATE_PROJECT_DB, data),
+    receiveNewProjectRecord: (cb) => ipcRenderer.on(channels.CREATE_PROJECT_DB, cb),
+    removeNewProjectListener: (cb) => ipcRenderer.removeListener(channels.CREATE_PROJECT_DB, cb),
 });

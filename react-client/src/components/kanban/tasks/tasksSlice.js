@@ -1,5 +1,6 @@
 import { createEntityAdapter, createSelector, createSlice } from "@reduxjs/toolkit";
 import { nanoid } from "nanoid";
+import { boardAdded, boardRemoved } from "../boards/boardsSlice2";
 
 const tasksAdapter = createEntityAdapter();
 
@@ -10,19 +11,12 @@ const tasksSlice = createSlice({
     initialState,
     reducers: {
         taskAdded: {
-            reducer: (state, action) => {
-                // debugger;
-                tasksAdapter.addOne(state, action.payload.task);
-            },
+            reducer: tasksAdapter.addOne,
             prepare: (task) => {
-                // debugger;
                 return {
                     payload: {
-                        task: {
-                            ...task,
-                            projectId: task.projectId || task.boardId,
-                            id: task.id || nanoid(),
-                        },
+                        ...task,
+                        id: task.id || nanoid(),
                     },
                     meta: {},
                     error: {},
@@ -41,6 +35,24 @@ const tasksSlice = createSlice({
             const { task, newStageId } = action.payload;
             state.entities[task.id].stage = newStageId;
         },
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(boardAdded, (state, action) => {
+                const { tasks } = action.payload;
+                tasks.forEach((task) => {
+                    task.projectId = action.payload.id;
+                    tasksAdapter.setOne(state, task);
+                });
+            })
+            .addCase(boardRemoved, (state, action) => {
+                const projectId = action.payload;
+                const taskIdsToRemove = Object.values(state.entities)
+                    .filter((task) => task.projectId === projectId)
+                    .map((task) => task.id);
+                // Remove tasks with the specified IDs
+                tasksAdapter.removeMany(state, taskIdsToRemove);
+            });
     },
 });
 

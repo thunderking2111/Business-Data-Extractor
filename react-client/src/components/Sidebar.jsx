@@ -1,6 +1,24 @@
 import { useEffect } from "react";
 import CustomSelect from "./CustomSelect";
 
+const RES_PER_QUERY_LIST = [
+    { value: "max", text: "Maximum" },
+    { value: 10, text: "10" },
+    { value: 20, text: "20" },
+    { value: 40, text: "40" },
+    { value: 80, text: "80" },
+    { value: 120, text: "120" },
+];
+
+const DELAY_LIST = [
+    { value: "random", text: "Random" },
+    { value: 1000, text: "1 Second" },
+    { value: 2000, text: "2 Second" },
+    { value: 4000, text: "4 Second" },
+    { value: 5000, text: "5 Second" },
+    { value: 10000, text: "10 Second" },
+];
+
 const Sidebar = ({
     keywordsRef,
     locationsRef,
@@ -8,52 +26,51 @@ const Sidebar = ({
     emailRef,
     delayRef,
     maxQueryRef,
-    taskData,
     task,
 }) => {
     const disabled = task ? task.stage !== "todo" : true;
-debugger;
-    useEffect(() => {
-        if (taskData?.locations && locationsRef.current) {
-            locationsRef.current.value = taskData.locations.join("\n");
-        }
-    }, [taskData, locationsRef]);
 
     useEffect(() => {
-        if (taskData?.keywords && keywordsRef.current) {
-            keywordsRef.current.value = taskData.keywords.join("\n");
+        if (task?.locations && locationsRef.current) {
+            locationsRef.current.value = task.locations.join("\n");
         }
-    }, [taskData, keywordsRef]);
+    }, [task, locationsRef]);
 
     useEffect(() => {
-        if (taskData?.useProxy && useProxyRef.current) {
-            useProxyRef.current.value = taskData.useProxy;
+        if (task?.keywords && keywordsRef.current) {
+            keywordsRef.current.value = task.keywords.join("\n");
         }
-    }, [taskData, useProxyRef]);
+    }, [task, keywordsRef]);
 
     useEffect(() => {
-        if (taskData?.emailMandatody && emailRef.current) {
-            emailRef.current.value = taskData.emailMandatody;
+        if (task?.useProxy && useProxyRef.current) {
+            useProxyRef.current.value = task.useProxy;
         }
-    }, [taskData, emailRef]);
+    }, [task, useProxyRef]);
 
     useEffect(() => {
-        if (taskData?.delay && delayRef.current) {
-            delayRef.current.value = taskData.delay;
+        if (task?.emailMandatody && emailRef.current) {
+            emailRef.current.value = task.emailMandatody;
         }
-    }, [taskData, delayRef]);
+    }, [task, emailRef]);
 
     useEffect(() => {
-        if (taskData?.maxQueryLimit && maxQueryRef.current) {
-            maxQueryRef.current.value = taskData.maxQueryLimit;
+        if (task?.delay && delayRef.current) {
+            delayRef.current.value = task.delay;
         }
-    }, [taskData, maxQueryRef]);
+    }, [task, delayRef]);
+
+    useEffect(() => {
+        if (task?.maxQueryLimit && maxQueryRef.current) {
+            maxQueryRef.current.value = task.maxQueryLimit;
+        }
+    }, [task, maxQueryRef]);
 
     return (
         <div className="relative flex grow shrink-0 overflow-auto h-screen w-1/4 max-w-[300px] flex-col rounded-xl bg-blue-gray-50 bg-opacity-60 bg-clip-border p-4 text-gray-700 shadow-xl shadow-blue-gray-900/5 gap-3">
             <div className="flex grow flex-col gap-3">
                 {["Keywords", "Locations"].map((label) => (
-                    <div className="w-full flex grow">
+                    <div key={label} className="w-full flex grow">
                         <div className="relative w-full flex grow">
                             <textarea
                                 ref={label === "Keywords" ? keywordsRef : locationsRef}
@@ -78,7 +95,7 @@ debugger;
                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                         />
                         <label
-                            for="checked-checkbox"
+                            htmlFor="checked-checkbox"
                             className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                         >
                             Email mandatory
@@ -94,7 +111,7 @@ debugger;
                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                         />
                         <label
-                            for="checked-checkbox"
+                            htmlFor="checked-checkbox"
                             className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                         >
                             Use Proxies
@@ -104,13 +121,13 @@ debugger;
                         ref={maxQueryRef}
                         disabled={disabled}
                         label={"Max Result Per Query"}
-                        optionsList={[{ value: "max", text: "Maximum" }]}
+                        optionsList={RES_PER_QUERY_LIST}
                     />
                     <CustomSelect
                         ref={delayRef}
                         disabled={disabled}
                         label={"Delay"}
-                        optionsList={[{ value: "random", text: "Random" }]}
+                        optionsList={DELAY_LIST}
                     />
                 </div>
             </div>

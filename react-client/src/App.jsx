@@ -34,6 +34,7 @@ const App = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
+        console.log("Mounted");
         window.electronAPI?.sendProjectDataReq();
         window.electronAPI?.receiveProjectData((event, data) => {
             console.log("Called");

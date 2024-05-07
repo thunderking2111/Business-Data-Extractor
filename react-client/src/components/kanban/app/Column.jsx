@@ -51,50 +51,52 @@ export const TaskElement = forwardRef((mainProps, ref) => {
                     <div className="heading-md mb-[8px] mr-2 text-left text-black group-hover:text-main-purple dark:text-white">
                         {task?.name}
                     </div>
-                    <div
-                        className="relative w-[25px]"
-                        style={{ visibility: props["data-task-id"] ? `visible` : `hidden` }}
-                        onClick={(ev) => {
-                            ev.stopPropagation();
-                            ev.preventDefault();
-                            setEditMenuOpen(!editMenuOpen);
-                        }}
-                    >
-                        <span disabled={editMenuOpen}>
-                            <img src={DotsIcon} alt="" />
-                        </span>
+                    <span className="relative">
+                        <div
+                            className="flex justify-center items-center rounded hover:border hover:border-2 hover:border-gray-400 min-w-[25px]"
+                            style={{ visibility: props["data-task-id"] ? `visible` : `hidden` }}
+                            onClick={(ev) => {
+                                ev.stopPropagation();
+                                ev.preventDefault();
+                                setEditMenuOpen(!editMenuOpen);
+                            }}
+                        >
+                            <span>
+                                <img src={DotsIcon} alt="" />
+                            </span>
 
-                        {editMenuOpen && (
-                            <div
-                                ref={editMenuRef}
-                                className="absolute right-1/2 top-full mt-[10px] flex w-[192px] translate-x-1/2 flex-col items-start gap-[16px] rounded-lg bg-white p-[16px] text-left text-medium-gray dark:bg-very-dark-gray z-10 border"
-                                onClick={(ev) => ev.stopPropagation()}
-                            >
-                                <span
-                                    onClick={(ev) => {
-                                        ev.stopPropagation();
-                                        ev.preventDefault();
-                                        setEditTaskModalOpen(true);
-                                        setEditMenuOpen(false);
-                                    }}
-                                    className="w-full text-start body-lg text-medium-gray"
+                            {editMenuOpen && (
+                                <div
+                                    ref={editMenuRef}
+                                    className="absolute right-1/2 top-full mt-[10px] flex w-[192px] translate-x-1/2 flex-col items-start gap-[16px] rounded-lg bg-white p-[16px] text-left text-medium-gray dark:bg-very-dark-gray z-10 border"
+                                    onClick={(ev) => ev.stopPropagation()}
                                 >
-                                    Edit Task
-                                </span>
-                                <span
-                                    onClick={(ev) => {
-                                        ev.stopPropagation();
-                                        ev.preventDefault();
-                                        setEditMenuOpen(false);
-                                        setDeleteModalOpen(true);
-                                    }}
-                                    className="w-full text-start body-lg text-red"
-                                >
-                                    Delete Task
-                                </span>
-                            </div>
-                        )}
-                    </div>
+                                    <span
+                                        onClick={(ev) => {
+                                            ev.stopPropagation();
+                                            ev.preventDefault();
+                                            setEditTaskModalOpen(true);
+                                            setEditMenuOpen(false);
+                                        }}
+                                        className="w-full text-start body-lg text-medium-gray"
+                                    >
+                                        Edit Task
+                                    </span>
+                                    <span
+                                        onClick={(ev) => {
+                                            ev.stopPropagation();
+                                            ev.preventDefault();
+                                            setEditMenuOpen(false);
+                                            setDeleteModalOpen(true);
+                                        }}
+                                        className="w-full text-start body-lg text-red"
+                                    >
+                                        Delete Task
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    </span>
                 </div>
                 <div className="body-md text-medium-gray text-start">{task.description}</div>
             </button>
@@ -107,7 +109,10 @@ export const TaskElement = forwardRef((mainProps, ref) => {
                 />
                 <DeleteTaskModal
                     open={deleteModalOpen}
-                    onConfirm={() => dispatch(taskRemoved({ task }))}
+                    onConfirm={() => {
+                        dispatch(taskRemoved({ task }));
+                        window.electronAPI.removeTaskRecord(task.id);
+                    }}
                     onClose={() => setDeleteModalOpen(false)}
                     title="Delete Task"
                     description="Are you sure you want to delete {task.title}? This action cannot be undone."
@@ -139,6 +144,7 @@ const SortableTask = (props) => {
 };
 
 const Column = ({ columnId }) => {
+    console.log("Column");
     const column = useSelector((state) => selectColumnById(state, columnId));
     const taskIds = useSelector((state) => selectColumnTaskIds(state, columnId));
     if (!taskIds) {

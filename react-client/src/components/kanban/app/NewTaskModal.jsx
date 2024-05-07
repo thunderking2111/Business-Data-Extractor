@@ -3,14 +3,19 @@ import { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { selectAllColumns } from "../columns/columnsSlice";
-import { selectTaskById, taskAdded, taskUpdated } from "../tasks/tasksSlice";
+import { selectTaskById, taskUpdated } from "../tasks/tasksSlice";
 import Modal from "./Modal";
-import { selectActiveBoardId } from "./uiState";
 import ChevronDown from "../assets/icon-chevron-down.svg";
+import { selectActiveBoard } from "../boards/boardsSlice2";
+
+const RESOURCES = [
+    { value: "google-maps", title: "Google Maps" },
+    { value: "bing-maps", title: "Bing Maps" },
+];
 
 const NewTaskModal = ({ taskId, open, closeModal, onClose }) => {
     const task = useSelector((state) => (taskId ? selectTaskById(state, taskId) : undefined));
-    const activeBoard = useSelector(selectActiveBoardId);
+    const activeBoard = useSelector(selectActiveBoard);
     const activeColumns = useSelector(selectAllColumns);
     const dispatch = useDispatch();
 
@@ -42,22 +47,21 @@ const NewTaskModal = ({ taskId, open, closeModal, onClose }) => {
 
     const onSubmit = handleSubmit((data) => {
         if (task) {
-            dispatch(
-                taskUpdated(task, {
-                    name: data.name,
-                    description: data.description,
-                    stage: activeColumns.find((column) => column.name === data.status).id,
-                }),
-            );
+            const updateData = {
+                name: data.name,
+                description: data.description,
+                stage: activeColumns.find((column) => column.name === data.status).id,
+            };
+            dispatch(taskUpdated(task, updateData));
+            window.electronAPI.updateTaskRecord({ task, changes: updateData });
         } else {
-            dispatch(
-                taskAdded({
-                    name: data.name,
-                    description: data.description,
-                    stage: activeColumns.find((column) => column.name === data.status).id,
-                    boardId: activeBoard,
-                }),
-            );
+            window.electronAPI.createTaskRecord({
+                name: data.name,
+                description: data.description,
+                stage: activeColumns.find((column) => column.name === data.status).id,
+                projectId: activeBoard.id,
+                resource: RESOURCES.find((resource) => resource.title === data.resource).value,
+            });
         }
         closeModal();
         reset();
@@ -92,7 +96,7 @@ recharge the batteries a little."
                                     <div>{field.value}</div>
                                     <img src={ChevronDown} alt="" />
                                 </Listbox.Button>
-                                <Listbox.Options className="absolute top-full mt-[10px] w-full rounded rounded-b bg-white text-medium-gray dark:bg-dark-gray">
+                                <Listbox.Options className="absolute top-full mt-[10px] w-full rounded border border-solid border-2 border-gray-400 bg-white text-medium-gray dark:bg-dark-gray z-[100]">
                                     {activeColumns.map((column) => (
                                         <Listbox.Option
                                             key={column.id}
@@ -121,17 +125,14 @@ recharge the batteries a little."
                                                 <div>{field.value}</div>
                                                 <img src={ChevronDown} alt="" />
                                             </Listbox.Button>
-                                            <Listbox.Options className="absolute top-full mt-[10px] w-full rounded rounded-b bg-white text-medium-gray dark:bg-dark-gray">
-                                                {[
-                                                    { value: "google-maps", title: "Google Maps" },
-                                                    { value: "bing", title: "Bing Maps" },
-                                                ].map((column) => (
+                                            <Listbox.Options className="absolute top-full mt-[10px] w-full rounded border border-solid border-2 border-gray-400 bg-white text-medium-gray dark:bg-dark-gray z-[100]">
+                                                {RESOURCES.map((resource) => (
                                                     <Listbox.Option
-                                                        key={column.id}
+                                                        key={resource.value}
                                                         className="body-lg py-[8px] pl-[16px] hover:bg-main-purple/10"
-                                                        value={column.value}
+                                                        value={resource.title}
                                                     >
-                                                        {column.name}
+                                                        {resource.title}
                                                     </Listbox.Option>
                                                 ))}
                                             </Listbox.Options>

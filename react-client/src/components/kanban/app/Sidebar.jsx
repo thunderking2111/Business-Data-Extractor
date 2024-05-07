@@ -1,7 +1,7 @@
 import { Switch, Tab } from "@headlessui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectAllBoards, selectBoardIds } from "../boards/boardsSlice2";
+import { boardAdded, selectAllBoards, selectBoardIds } from "../boards/boardsSlice2";
 import useScreenSize from "../utilities/useScreenSize";
 import NewBoardModal from "./NewBoardModal";
 import {
@@ -34,6 +34,17 @@ const BoardList = () => {
     const setSelectedBoardIndex = (index) => {
         dispatch(setActiveBoardId(boardIds[index]));
     };
+
+    const handleNewProject = (event, project) => {
+        dispatch(boardAdded(project));
+    };
+
+    useEffect(() => {
+        window.electronAPI.receiveNewProjectRecord(handleNewProject);
+        return () => {
+            window.electronAPI.removeNewProjectListener(handleNewProject);
+        };
+    }, []);
 
     if (sidebarIsOpen && !isSmallScreen) {
         return (

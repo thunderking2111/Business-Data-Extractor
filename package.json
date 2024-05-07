@@ -7,18 +7,22 @@
   "main": "main.js",
   "type": "commonjs",
   "dependencies": {
+    "better-sqlite3": "^9.6.0",
     "concurrently": "^8.2.2",
     "csv-writer": "^1.6.0",
     "exceljs": "^4.4.0",
     "puppeteer": "^22.7.1",
+    "typeorm": "^0.3.20",
     "wait-on": "^7.2.0"
   },
   "devDependencies": {
     "electron": "^29.3.1",
-    "electron-is-dev": "^3.0.1"
+    "electron-is-dev": "^3.0.1",
+    "electron-rebuild": "^3.2.9"
   },
   "scripts": {
     "start": "concurrently -k \"cd react-client && npm run react-start\" \"npm run electron-dev\"",
+    "rebuild-electron": "electron-rebuild -f -w better-sqlite3",
     "electron-start": "electron .",
     "electron-dev": "wait-on tcp:3000 && electron .",
     "build-win-packager": "electron-packager . BusinessDataExtractor --platform=win32 --arch=x64 --out=dist --overwrite --electron-version=29.3.1",
