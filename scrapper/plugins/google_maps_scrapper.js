@@ -1,7 +1,6 @@
 const { waitForEl, scrollResultsList } = require("../misc/dom_helpers");
 const setupPageContext = require("../misc/setup_page_context");
-const getUserInput = require("../misc/user_input_helper");
-const { sleep, CONSTANTS, ElNotFoundError } = require("../misc/utils");
+const { sleep, ElNotFoundError } = require("../misc/utils");
 
 const URL = "https://www.google.com/maps";
 
@@ -43,7 +42,7 @@ const SELECTORS = {
 /**
  * @param {import("puppeteer").Browser} browser
  */
-async function* scrapGoogleMaps(browser, keyword, location) {
+async function* scrapGoogleMaps(browser, keyword, location, ITEM_SWITCH_DELAY, stopScrapping) {
     const page = await browser.newPage();
     await page.goto(URL, { timeout: 60000 });
     await page.waitForSelector(SELECTORS.searchBoxInput);
@@ -163,10 +162,15 @@ async function* scrapGoogleMaps(browser, keyword, location) {
             }
             return res;
         });
+        if (stopScrapping()) {
+            await Promise.all((await browser.pages()).map(page => page.close()));
+            await browser.close();
+            return;
+        }
         if (res) {
             yield res;
         }
-        await sleep(CONSTANTS.ITEM_SWITCH_DELAY);
+        await sleep(ITEM_SWITCH_DELAY === "random" ? Math.floor(Math.random() * 3000) + 1000 + 500 : ITEM_SWITCH_DELAY);
     }
     await page.close();
 }

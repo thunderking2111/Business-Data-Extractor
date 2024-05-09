@@ -58,12 +58,11 @@ async function scrollResultsList(
             async (resultsSection, isLastContentSelector, lastContent) => {
                 resultsSection.scrollTop = resultsSection.scrollHeight;
                 if (
-                    // isLastContentSelector
-                    //     ? Boolean(resultsSection.querySelector(lastContent))
-                    //     : resultsSection.lastChild &&
-                    //       resultsSection.lastChild.textContent &&
-                    //       resultsSection.lastChild.textContent.includes(lastContent)
-                    resultsSection.querySelectorAll(SELECTORS.resultItem).length >= 12
+                    isLastContentSelector
+                        ? Boolean(resultsSection.querySelector(lastContent))
+                        : resultsSection.lastChild &&
+                          resultsSection.lastChild.textContent &&
+                          resultsSection.lastChild.textContent.includes(lastContent)
                 ) {
                     return true;
                 }

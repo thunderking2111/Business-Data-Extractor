@@ -8,9 +8,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     receiveProjectData: (cb) => ipcRenderer.on(channels.PROJECT_DATA, cb),
     sendTaskDataReq: (data) => ipcRenderer.send(channels.TASK_DATA, data),
     receiveTaskData: (cb) => ipcRenderer.on(channels.TASK_DATA, cb),
-    removeTaskDataListeners: () => ipcRenderer.removeListener(channels.TASK_DATA),
+    removeTaskDataListeners: (cb) => ipcRenderer.removeListener(channels.TASK_DATA, cb),
     listenForTaskUpdates: (cb) => ipcRenderer.on(channels.TASK_UPDATES, cb),
     stopListeningForTaskUpdates: (cb) => ipcRenderer.removeListener(channels.TASK_UPDATES, cb),
+    resetTask: (data) => ipcRenderer.send(channels.RESET_TASK, data),
     removeAllListeners: () => ipcRenderer.removeAllListeners(),
     channels,
 

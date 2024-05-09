@@ -5,6 +5,24 @@ const { ElNotFoundError, sleep, CONSTANTS } = require("../misc/utils");
 
 const URL = "https://www.bing.com/maps";
 
+const HEADERS = [
+    { key: "url", value: "URL" },
+    { key: "title", value: "Title" },
+    { key: "rating", value: "Rating" },
+    { key: "reviewScore", value: "Review Score" },
+    { key: "category", value: "Category" },
+    { key: "address", value: "Address" },
+    { key: "website", value: "Website" },
+    { key: "phone", value: "Phone" },
+    { key: "monday", value: "Monday" },
+    { key: "tuesday", value: "Tuesday" },
+    { key: "wednesday", value: "Wednesday" },
+    { key: "thursday", value: "Thursday" },
+    { key: "friday", value: "Friday" },
+    { key: "saturday", value: "Saturday" },
+    { key: "sunday", value: "Sunday" }
+];
+
 const SELECTORS = {
     searchBoxInput: ".searchbox input[type='search']",
     searchButton: ".searchbox .searchButton a.searchIcon",
@@ -227,3 +245,4 @@ async function scrapBingMaps(browser, keyword, location) {
 }
 
 module.exports = scrapBingMaps;
+module.exports.HEADERS = HEADERS;

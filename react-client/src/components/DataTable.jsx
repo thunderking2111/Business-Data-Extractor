@@ -1,9 +1,10 @@
 const DataTable = ({ taskData, task }) => {
     let rowNo = 1;
+    const headers = taskData?.headers || task?.headers;
     return (
         <div className="flex-1 overflow-auto border rounded-[6px] m-2">
             <div className="relative w-full shadow-md sm:rounded-lg">
-                {taskData.headers && (
+                {headers && (
                     <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                         <thead className="text-xs text-gray-700 uppercase bg-gray-400">
                             <tr>
@@ -23,7 +24,7 @@ const DataTable = ({ taskData, task }) => {
                                         </a>
                                     </div>
                                 </th>
-                                {taskData.headers.map((header) => {
+                                {headers.map((header) => {
                                     return (
                                         <th
                                             key={header.key}
@@ -59,9 +60,9 @@ const DataTable = ({ taskData, task }) => {
                                         scope="row"
                                         className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                                     >
-                                        {++rowNo}
+                                        {rowNo++}
                                     </th>
-                                    {taskData.headers.map((header) => (
+                                    {headers.map((header) => (
                                         <td
                                             key={header.key}
                                             className="px-6 py-4 whitespace-nowrap"

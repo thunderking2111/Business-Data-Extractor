@@ -1,4 +1,4 @@
-const DataTableFooter = ({ taskData, task }) => {
+const DataTableFooter = ({ taskData }) => {
     return (
         <div className="flex justify-between my-3 mx-2">
             <span>

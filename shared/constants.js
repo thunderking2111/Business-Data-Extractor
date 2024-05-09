@@ -10,5 +10,6 @@ module.exports = {
         UPDATE_PROJECT_DB: "update-project-db",
         CREATE_PROJECT_DB: "create-project-db",
         REMOVE_PROJECT_DB: "remove-project-db",
+        RESET_TASK: "reset-task",
     },
 };

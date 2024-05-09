@@ -6,13 +6,16 @@ const { startScrapping } = require("./scrapper");
 const scrapGoogleMaps = require("./scrapper/plugins/google_maps_scrapper");
 const { HEADERS: googleMapsHeaders } = require("./scrapper/plugins/google_maps_scrapper");
 const scrapBingMaps = require("./scrapper/plugins/bing_maps_scrapper");
+const { HEADERS: bingMapsHeader } = require("./scrapper/plugins/bing_maps_scrapper");
 
 const isDev = true;
 
 let mainWindow;
 
+const browserByTask = {};
+let initialDbProcessDefered;
+
 async function createWindow() {
-    await dataSourceDefered;
     mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
@@ -33,7 +36,21 @@ async function createWindow() {
     }
 }
 
-app.on("ready", createWindow);
+app.on("ready", async () => {
+    initialDbProcessDefered = new Promise(async (resolve) => {
+        await dataSourceDefered;
+        const taskRepo = dataSource.getRepository("Task");
+        const ongoingTasks = await taskRepo.findBy({ stage: "ongoing" });
+        await taskRepo.save(ongoingTasks.map((task) => {
+            return {
+                id: task.id,
+                stage: "done",
+            };
+        }))
+        resolve();
+    });
+    createWindow();
+});
 
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") {
@@ -47,8 +64,34 @@ app.on("activate", async () => {
     }
 });
 
+app.on("before-quit", async () => {
+    console.log("Called Before quit");
+    const taskRepo = dataSource.getRepository("Task");
+    const taskIds = Object.keys(browserByTask);
+    if (!taskIds || !taskIds.length) {
+        return;
+    }
+    const tasks = taskRepo.findBy({ id: taskIds });
+    const updatedTasks = [];
+    const proms = [];
+    for (const task of tasks) {
+        updatedTasks.push({
+            id: task.id,
+            stage: "done",
+        });
+        const browser = browserByTask[task.id].browser;
+        (await browser.pages()).forEach(page => proms.push(page.close()));
+        proms.push(browser.close());
+    }
+    proms.push(taskRepo.save(updatedTasks));
+    await Promise.all(proms);
+    await dataSource.destroy();
+});
+
 ipcMain.on(channels.SCRAPP, async (event, data) => {
+    let stopScrapping = false;
     const { task, ...changes } =  data;
+    debugger;
     let taskRecord;
     try {
         const taskRepo = dataSource.getRepository("Task");
@@ -71,6 +114,7 @@ ipcMain.on(channels.SCRAPP, async (event, data) => {
             break;
         case "bing-maps":
             scrapperFn = scrapBingMaps;
+            headers = bingMapsHeader;
         default:
             break;
     }
@@ -79,7 +123,8 @@ ipcMain.on(channels.SCRAPP, async (event, data) => {
     try {
         const taskRepo = dataSource.getRepository("Task");
         mainWindow.webContents.send(channels.TASK_UPDATES, { taskId: task.id, headers });
-        const resultGenerator = startScrapping(scrapperFn, changes.keywords, changes.locations, changes.maxResPerQuery, changes.delay, false);
+        const resultGenerator = startScrapping(scrapperFn, changes.keywords, changes.locations, changes.maxResPerQuery, changes.delay, () => stopScrapping, false);
+        browserByTask[taskRecord.id] = { browser: (await resultGenerator.next()), stop: () => stopScrapping = true };
         for await (const result of resultGenerator) {
             if (result.row) {
                 result.row.id = ++counter;
@@ -88,6 +133,7 @@ ipcMain.on(channels.SCRAPP, async (event, data) => {
                     keyword: result.keyword,
                     data: convertScrapDataForDB(result.row),
                 })
+                console.log(taskRecord.scrapDatas);
                 taskRepo.save(taskRecord);
                 delete result.keyword;
                 delete result.location;
@@ -96,12 +142,18 @@ ipcMain.on(channels.SCRAPP, async (event, data) => {
             console.log(result);
             mainWindow.webContents.send(channels.TASK_UPDATES, result);
         }
+        delete browserByTask[taskRecord.id];
+        await taskRepo.save({
+            id: taskRecord.id,
+            stage: "done",
+        })
     } catch (error) {
         console.log(error);
     }
 });
 
 ipcMain.on(channels.PROJECT_DATA, async (event, data) => {
+    await initialDbProcessDefered;
     const projectRepo = dataSource.getRepository("Project");
     const projectData = await projectRepo.find({relations: ["tasks", "tasks.project"]});
     for (const project of projectData) {
@@ -116,29 +168,69 @@ ipcMain.on(channels.PROJECT_DATA, async (event, data) => {
     event.sender.send(channels.PROJECT_DATA, res);
 });
 
-ipcMain.on(channels.TASK_DATA, (event, data) => {
+ipcMain.on(channels.TASK_DATA, async (event, data) => {
     const { taskId } = data;
-    const res = {
-        locations: ["ahmedabad", "mumbai"],
-        keywords: ["school"],
-        rows: [],
+    try {
+        const taskRepo = dataSource.getRepository("Task");
+        const task = await taskRepo.findOne({
+            where: {
+                id: taskId,
+            },
+            relations: ["scrapDatas"],
+        })
+        debugger;
+        task.scrapDatas = task.scrapDatas ? task.scrapDatas.map((data) => convertScrapDataForClient(data)): [];
+        if (task.stage !== "todo") {
+            switch(task.resource) {
+                case "google-maps":
+                    task.headers = googleMapsHeaders;
+                    break;
+                case "bing-maps":
+                    task.headers = bingMapsHeader;
+                    break;
+                default:
+                    break;
+            }
+        }
+    event.sender.send(channels.TASK_DATA, prepareTaskDataForClient(task));
+    } catch (err) {
+        console.log(err);
     }
-    event.sender.send(channels.TASK_DATA, res);
 });
 
+ipcMain.on(channels.RESET_TASK, async (event, data) => {
+    const { taskId, changes } = data;
+    try {
+        const taskRepo = dataSource.getRepository("Task");
+        const scrapDataRepo = dataSource.getRepository("ScrapData");
+        const task = await taskRepo.findOne({
+            where: { id: taskId },
+            relations: ["scrapDatas"],
+        });
+        browserByTask[taskId]?.stop();
+        await scrapDataRepo.delete(task.scrapDatas.map(data => data.id));
+        task.scrapDatas = [];
+        Object.assign(task, prepareTaskDataForDb(changes));
+        await taskRepo.save(task);
+    } catch (err) {
+        console.log(err);
+    }
+})
 
 // Database related listeners
 
-const convertScrapDataForClient = (data) => {
-    return JSON.parse(data);
+const convertScrapDataForClient = (scrapData) => {
+    scrapData.data = JSON.parse(scrapData.data);
+    return scrapData;
 }
 
 const convertScrapDataForDB = (data) => {
+
     return JSON.stringify(data);
 }
 
 const prepareTaskDataForClient = (data) => {
-    const updatedData = data;
+    const updatedData = {...data};
     if (updatedData.project) {
         updatedData.projectId = typeof updatedData.project === "object" ? updatedData.project.id : updatedData.project;
         delete updatedData.project;
@@ -165,7 +257,7 @@ const prepareTaskDataForClient = (data) => {
 }
 
 const prepareTaskDataForDb = (data) => {
-    const updateData = data;
+    const updateData = { ...data };
     if (updateData.projectId) {
         updateData.project = updateData.projectId;
         delete updateData.projectId;

@@ -16,6 +16,7 @@ const tasksSlice = createSlice({
                 return {
                     payload: {
                         ...task,
+                        headers: [],
                         id: task.id || nanoid(),
                     },
                     meta: {},
