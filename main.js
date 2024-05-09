@@ -8,8 +8,6 @@ const { HEADERS: googleMapsHeaders } = require("./scrapper/plugins/google_maps_s
 const scrapBingMaps = require("./scrapper/plugins/bing_maps_scrapper");
 const { HEADERS: bingMapsHeader } = require("./scrapper/plugins/bing_maps_scrapper");
 
-const isDev = true;
-
 let mainWindow;
 
 const browserByTask = {};
@@ -27,13 +25,9 @@ async function createWindow() {
             preload: path.join(__dirname, "preload.js") // Load a preload script to expose __dirname to renderer process
         },
     });
-    mainWindow.webContents.openDevTools();
-    if (isDev) {
-        const startURL = "http://localhost:3000";
-        mainWindow.loadURL(startURL);
-    } else {
-        mainWindow.loadFile(path.join(__dirname, "react-client/build/index.html"));
-    }
+    // mainWindow.webContents.openDevTools();
+    const startURL = "http://localhost:3000";
+    mainWindow.loadURL(startURL);
 }
 
 app.on("ready", async () => {

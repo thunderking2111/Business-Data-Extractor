@@ -2,10 +2,13 @@ const { DataSource } = require("typeorm");
 const TaskSchema = require("./entities/TaskSchema");
 const ProjectSchema = require("./entities/ProjectSchema");
 const ScrapData = require("./entities/ScrapData");
+const path = require("path");
+
+const IS_DEV = process.env.IS_DEV ? process.env.IS_DEV === 'true' : false;
 
 const AppDataSource = new DataSource({
     type: "better-sqlite3",
-    database: "./main.sqlite",
+    database: path.join(__dirname, IS_DEV ? "" : "resources", IS_DEV ? "" : "db", "main.sqlite"),
     synchronize: true,
     logging: true,
     entities: [TaskSchema, ProjectSchema, ScrapData],

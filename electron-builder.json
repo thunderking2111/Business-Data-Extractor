@@ -1,8 +1,15 @@
 {
+    "appId": "com.business-data-extractor.app",
+    "productName": "Business Data Extractor",
     "directories": {
-      "output": "dist-builder"
+        "output": "dist-builder"
     },
+    "extraResources": [{
+        "from": "./main.sqlite",
+        "to": "db/",
+        "filter": "**/*"
+    }],
     "win": {
-      "target": "nsis"
+        "target": "nsis"
     }
-  }
+}

@@ -21,10 +21,12 @@
     "electron-rebuild": "^3.2.9"
   },
   "scripts": {
-    "start": "concurrently -k \"cd react-client && npm run react-start\" \"npm run electron-dev\"",
+    "start": "concurrently -k \"cd react-client && npm run start\" \"npm run electron\"",
+    "postinstall": "electron-builder install-app-deps",
+    "start-dev": "concurrently -k \"cd react-client && npm run react-electron-dev\" \"npm run electron-dev\"",
     "rebuild-electron": "electron-rebuild -f -w better-sqlite3",
     "electron-start": "electron .",
-    "electron-dev": "wait-on tcp:3000 && electron .",
+    "electron-dev": "wait-on tcp:3000 && IS_DEV=true electron .",
     "build-win-packager": "electron-packager . BusinessDataExtractor --platform=win32 --arch=x64 --out=dist --overwrite --electron-version=29.3.1",
     "build-win-builder": "electron-builder"
   },
