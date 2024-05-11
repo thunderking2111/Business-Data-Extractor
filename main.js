@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const { dataSource, dataSourceDefered } = require("./data-source");
 const path = require("path");
+const { spawn } = require('child_process');
+const kill = require("tree-kill");
 const { channels } = require("./shared/constants");
 const { startScrapping } = require("./scrapper");
 const scrapGoogleMaps = require("./scrapper/plugins/google_maps_scrapper");
@@ -8,7 +10,10 @@ const { HEADERS: googleMapsHeaders } = require("./scrapper/plugins/google_maps_s
 const scrapBingMaps = require("./scrapper/plugins/bing_maps_scrapper");
 const { HEADERS: bingMapsHeader } = require("./scrapper/plugins/bing_maps_scrapper");
 
+const IS_DEV = process.env.IS_DEV ? process.env.IS_DEV === 'true' : false;
+
 let mainWindow;
+let serveProcess;
 
 const browserByTask = {};
 let initialDbProcessDefered;
@@ -25,12 +30,12 @@ async function createWindow() {
             preload: path.join(__dirname, "preload.js") // Load a preload script to expose __dirname to renderer process
         },
     });
-    // mainWindow.webContents.openDevTools();
     const startURL = "http://localhost:3000";
     mainWindow.loadURL(startURL);
 }
 
 app.on("ready", async () => {
+    console.log("Ready");
     initialDbProcessDefered = new Promise(async (resolve) => {
         await dataSourceDefered;
         const taskRepo = dataSource.getRepository("Task");
@@ -43,11 +48,29 @@ app.on("ready", async () => {
         }))
         resolve();
     });
-    createWindow();
+    const serveFile = path.join(__dirname, 'node_modules', 'serve', 'build', 'main.js');
+    const reactBuild = path.join(__dirname, 'react-client', 'build');
+    serveProcess = spawn('node', [serveFile, '-s', reactBuild]);
+    serveProcess.stdout.on('data', (data) => {
+        console.log(`serve stdout: ${data}`);
+        if (data.includes('Accepting connections at http://localhost:3000')) {
+            console.log("Calling");
+            createWindow();
+        }
+    });
+
+    serveProcess.stderr.on('data', (data) => {
+        console.error(`serve stderr: ${data}`);
+    });
+
+    serveProcess.on('close', (code) => {
+        console.log(`serve process exited with code ${code}`);
+    });
 });
 
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") {
+        kill(serveProcess.pid);
         app.quit();
     }
 });
@@ -59,6 +82,7 @@ app.on("activate", async () => {
 });
 
 app.on("before-quit", async () => {
+    kill(serveProcess.pid);
     console.log("Called Before quit");
     const taskRepo = dataSource.getRepository("Task");
     const taskIds = Object.keys(browserByTask);
@@ -85,7 +109,6 @@ app.on("before-quit", async () => {
 ipcMain.on(channels.SCRAPP, async (event, data) => {
     let stopScrapping = false;
     const { task, ...changes } =  data;
-    debugger;
     let taskRecord;
     try {
         const taskRepo = dataSource.getRepository("Task");
@@ -172,7 +195,6 @@ ipcMain.on(channels.TASK_DATA, async (event, data) => {
             },
             relations: ["scrapDatas"],
         })
-        debugger;
         task.scrapDatas = task.scrapDatas ? task.scrapDatas.map((data) => convertScrapDataForClient(data)): [];
         if (task.stage !== "todo") {
             switch(task.resource) {

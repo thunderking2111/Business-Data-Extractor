@@ -12,6 +12,8 @@
     "csv-writer": "^1.6.0",
     "exceljs": "^4.4.0",
     "puppeteer": "^22.7.1",
+    "serve": "^14.2.3",
+    "tree-kill": "^1.2.2",
     "typeorm": "^0.3.20",
     "wait-on": "^7.2.0"
   },
@@ -21,14 +23,17 @@
     "electron-rebuild": "^3.2.9"
   },
   "scripts": {
-    "start": "concurrently -k \"cd react-client && npm run start\" \"npm run electron\"",
+    "start": "electron .",
+    "serve": "serve -s react-client/build",
     "postinstall": "electron-builder install-app-deps",
     "start-dev": "concurrently -k \"cd react-client && npm run react-electron-dev\" \"npm run electron-dev\"",
     "rebuild-electron": "electron-rebuild -f -w better-sqlite3",
     "electron-start": "electron .",
+    "electron-build-start": "wait-on tcp:3000 && electron .",
     "electron-dev": "wait-on tcp:3000 && IS_DEV=true electron .",
     "build-win-packager": "electron-packager . BusinessDataExtractor --platform=win32 --arch=x64 --out=dist --overwrite --electron-version=29.3.1",
-    "build-win-builder": "electron-builder"
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "browserslist": {
     "production": [

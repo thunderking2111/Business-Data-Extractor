@@ -8,7 +8,7 @@ const IS_DEV = process.env.IS_DEV ? process.env.IS_DEV === 'true' : false;
 
 const AppDataSource = new DataSource({
     type: "better-sqlite3",
-    database: path.join(__dirname, IS_DEV ? "" : "resources", IS_DEV ? "" : "db", "main.sqlite"),
+    database: path.join(__dirname, IS_DEV ? "" : "resources", "main.sqlite"),
     synchronize: true,
     logging: true,
     entities: [TaskSchema, ProjectSchema, ScrapData],
