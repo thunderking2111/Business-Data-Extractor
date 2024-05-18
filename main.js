@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu } = require("electron");
 const { dataSource, dataSourceDefered } = require("./data-source");
 const path = require("path");
 const { spawn } = require('child_process');
@@ -9,6 +9,10 @@ const scrapGoogleMaps = require("./scrapper/plugins/google_maps_scrapper");
 const { HEADERS: googleMapsHeaders } = require("./scrapper/plugins/google_maps_scrapper");
 const scrapBingMaps = require("./scrapper/plugins/bing_maps_scrapper");
 const { HEADERS: bingMapsHeader } = require("./scrapper/plugins/bing_maps_scrapper");
+const { createCSV } = require("./scrapper/misc/csv_helper");
+const { createExcel } = require("./scrapper/misc/excel_helper");
+
+const { mainMenu } = require("./menu_maker");
 
 const IS_DEV = process.env.IS_DEV ? process.env.IS_DEV === 'true' : false;
 
@@ -30,8 +34,12 @@ async function createWindow() {
             preload: path.join(__dirname, "preload.js") // Load a preload script to expose __dirname to renderer process
         },
     });
+
+    Menu.setApplicationMenu(mainMenu);
+
     const startURL = "http://localhost:3000";
     mainWindow.loadURL(startURL);
+    mainWindow.maximize();
 }
 
 app.on("ready", async () => {
@@ -48,16 +56,17 @@ app.on("ready", async () => {
         }))
         resolve();
     });
-    const serveFile = path.join(__dirname, 'node_modules', 'serve', 'build', 'main.js');
-    const reactBuild = path.join(__dirname, 'react-client', 'build');
-    serveProcess = spawn('node', [serveFile, '-s', reactBuild]);
-    serveProcess.stdout.on('data', (data) => {
-        console.log(`serve stdout: ${data}`);
-        if (data.includes('Accepting connections at http://localhost:3000')) {
-            console.log("Calling");
-            createWindow();
-        }
-    });
+    if (!IS_DEV) {
+        const serveFile = path.join(__dirname, 'node_modules', 'serve', 'build', 'main.js');
+        const reactBuild = path.join(__dirname, 'react-client', 'build');
+        serveProcess = spawn('node', [serveFile, '-s', reactBuild]);
+        serveProcess.stdout.on('data', (data) => {
+            console.log(`serve stdout: ${data}`);
+            if (data.includes('Accepting connections at http://localhost:3000')) {
+                console.log("Calling");
+                createWindow();
+            }
+        });
 
     serveProcess.stderr.on('data', (data) => {
         console.error(`serve stderr: ${data}`);

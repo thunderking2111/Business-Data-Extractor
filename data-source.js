@@ -3,17 +3,47 @@ const TaskSchema = require("./entities/TaskSchema");
 const ProjectSchema = require("./entities/ProjectSchema");
 const ScrapData = require("./entities/ScrapData");
 const path = require("path");
+const os = require('os');
+const SettingsSchema = require("./entities/SettingsSchema");
 
 const IS_DEV = process.env.IS_DEV ? process.env.IS_DEV === 'true' : false;
+
+function getDocumentsFolderPath() {
+    const homeDir = os.homedir();
+    let documentsPath;
+
+    if (process.platform === 'win32') {
+        documentsPath = path.join(homeDir, 'Documents');
+    } else if (process.platform === 'linux' || process.platform === 'darwin') {
+        documentsPath = path.join(homeDir, 'Documents');
+    } else {
+        throw new Error('Unsupported platform: ' + process.platform);
+    }
+
+    return documentsPath;
+}
 
 const AppDataSource = new DataSource({
     type: "better-sqlite3",
     database: path.join(__dirname, IS_DEV ? "" : "resources", "main.sqlite"),
     synchronize: true,
     logging: true,
-    entities: [TaskSchema, ProjectSchema, ScrapData],
+    entities: [TaskSchema, ProjectSchema, ScrapData, SettingsSchema],
     subscribers: [],
     migrations: [],
+});
+
+const dataSourceDefered = AppDataSource.initialize();
+dataSourceDefered.then(async (db) => {
+    const settingsRepository = db.getRepository("Settings");
+
+    const count = await settingsRepository.count();
+    if (count === 0) {
+        const defaultSettings = settingsRepository.create({
+            reportsDir: getDocumentsFolderPath(),
+        });
+        await settingsRepository.save(defaultSettings);
+    }
 });
 
 // AppDataSource
@@ -127,4 +157,4 @@ const AppDataSource = new DataSource({
     //     console.log(err);
     // });
 
-module.exports = { dataSource: AppDataSource, dataSourceDefered: AppDataSource.initialize() };
+module.exports = { dataSource: AppDataSource, dataSourceDefered };
