@@ -44,8 +44,12 @@ async function createWindow() {
 
     Menu.setApplicationMenu(mainMenu);
 
-    const startURL = "http://localhost:3000";
-    mainWindow.loadURL(startURL);
+    console.log(path.join(__dirname, "react-client/build/index.html"));
+
+    IS_DEV
+        ? mainWindow.loadURL("http://localhost:3000")
+        : mainWindow.loadFile(path.join(__dirname, "react-client/build/index.html"));
+
     mainWindow.maximize();
 }
 
@@ -67,30 +71,7 @@ app.on("ready", async () => {
         );
         resolve();
     });
-    if (!IS_DEV) {
-        const serveFile = path.join(__dirname, "node_modules", "serve", "build", "main.js");
-        const reactBuild = path.join(__dirname, "react-client", "build");
-        // Use Electron's Node.js executable
-        // const electronExecPath = process.execPath;
-        serveProcess = spawn('node', [serveFile, "-s", reactBuild]);
-        serveProcess.stdout.on("data", (data) => {
-            console.log(`serve stdout: ${data}`);
-            if (data.includes("Accepting connections at http://localhost:3000")) {
-                console.log("Calling");
-                createWindow();
-            }
-        });
-
-        serveProcess.stderr.on("data", (data) => {
-            console.error(`serve stderr: ${data}`);
-        });
-
-        serveProcess.on("close", (code) => {
-            console.log(`serve process exited with code ${code}`);
-        });
-    } else {
-        createWindow();
-    }
+    createWindow();
 });
 
 app.on("window-all-closed", async () => {

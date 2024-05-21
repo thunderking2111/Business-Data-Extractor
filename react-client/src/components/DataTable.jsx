@@ -61,72 +61,72 @@ const DataTable = ({ taskData, task }) => {
                             </tr>
                         </thead>
                         <tbody className={rows.length === 0 ? "h-full" : ""}>
-                            {rows.length > 0 ? (
-                                rows.map((row) => (
-                                    <tr
-                                        key={row.id}
-                                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                                    >
-                                        <th
-                                            scope="row"
-                                            className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                                        >
-                                            {rowNo++}
-                                        </th>
-                                        {headers.map((header) => (
-                                            <td
-                                                key={header.key}
-                                                className="px-6 py-4 whitespace-nowrap"
-                                            >
-                                                {header.key === "url" ? (
-                                                    <a
-                                                        target="_blank"
-                                                        href={row[header.key]}
-                                                        rel="noreferrer"
-                                                        className="text-blue-500 flex items-center"
-                                                        title={row[header.key]}
-                                                    >
-                                                        Link
-                                                        <svg
-                                                            className="w-4 h-4 ml-1"
-                                                            aria-hidden="true"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            stroke="currentColor"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M9 5l7 7-7 7"
-                                                            />
-                                                        </svg>
-                                                    </a>
-                                                ) : (
-                                                    row[header.key]
-                                                )}
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr className="h-full">
-                                    <td
-                                        colSpan={headers.length + 1}
-                                        className="text-center h-full py-4"
-                                    >
-                                        <img
-                                            src={loadingGif}
-                                            alt="Loading..."
-                                            className="mx-auto mb-4 w-40 h-40"
-                                        />
-                                        <span className="text-3xl font-semibold text-gray-700 dark:text-gray-300">
-                                            Scrapping Data...
-                                        </span>
-                                    </td>
-                                </tr>
-                            )}
+                            {rows.length > 0
+                                ? rows.map((row) => (
+                                      <tr
+                                          key={row.id}
+                                          className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                                      >
+                                          <th
+                                              scope="row"
+                                              className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                                          >
+                                              {rowNo++}
+                                          </th>
+                                          {headers.map((header) => (
+                                              <td
+                                                  key={header.key}
+                                                  className="px-6 py-4 whitespace-nowrap"
+                                              >
+                                                  {header.key === "url" ? (
+                                                      <a
+                                                          target="_blank"
+                                                          href={row[header.key]}
+                                                          rel="noreferrer"
+                                                          className="text-blue-500 flex items-center"
+                                                          title={row[header.key]}
+                                                      >
+                                                          Link
+                                                          <svg
+                                                              className="w-4 h-4 ml-1"
+                                                              aria-hidden="true"
+                                                              xmlns="http://www.w3.org/2000/svg"
+                                                              fill="none"
+                                                              viewBox="0 0 24 24"
+                                                              stroke="currentColor"
+                                                          >
+                                                              <path
+                                                                  strokeLinecap="round"
+                                                                  strokeLinejoin="round"
+                                                                  strokeWidth={2}
+                                                                  d="M9 5l7 7-7 7"
+                                                              />
+                                                          </svg>
+                                                      </a>
+                                                  ) : (
+                                                      row[header.key]
+                                                  )}
+                                              </td>
+                                          ))}
+                                      </tr>
+                                  ))
+                                : task?.stage === "ongoing" && (
+                                      <tr className="h-full">
+                                          <td
+                                              colSpan={headers.length + 1}
+                                              className="text-center h-full py-4"
+                                          >
+                                              <img
+                                                  src={loadingGif}
+                                                  alt="Loading..."
+                                                  className="mx-auto mb-4 w-40 h-40"
+                                              />
+                                              <span className="text-3xl font-semibold text-gray-700 dark:text-gray-300">
+                                                  Scrapping Data...
+                                              </span>
+                                          </td>
+                                      </tr>
+                                  )}
                         </tbody>
                     </table>
                 ) : (

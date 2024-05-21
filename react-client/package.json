@@ -30,7 +30,9 @@
       "start": "cross-env BROWSER=none serve -s build",
       "react-electron-dev": "cross-env BROWSER=none react-scripts start",
       "react-dev": "react-scripts start",
-      "react-build": "react-scripts build"
+      "react-build": "react-scripts build",
+      "format-all": "eslint --fix '**/*.{js,jsx}'",
+      "lint-all": "eslint '**/*.{js,jsx}'"
     },
     "browserslist": {
       "production": [

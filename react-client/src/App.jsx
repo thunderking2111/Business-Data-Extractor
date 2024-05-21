@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import MainPanel from "./components/kanban/app/MainPanel";
 import Nav from "./components/kanban/app/Nav";
 import KanbanSidebar from "./components/kanban/app/Sidebar";
