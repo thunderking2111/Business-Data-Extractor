@@ -1,11 +1,21 @@
+import loadingGif from "./loading.gif";
+import folderIcon from "./folder.png";
+
 const DataTable = ({ taskData, task }) => {
     let rowNo = 1;
     const headers = taskData?.headers || task?.headers;
+    const rows = taskData?.rows || [];
+
     return (
         <div className="flex-1 overflow-auto border rounded-[6px] m-2">
-            <div className="relative w-full shadow-md sm:rounded-lg">
-                {headers && (
-                    <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+            <div className="relative w-full h-full shadow-md sm:rounded-lg">
+                {task && task.stage !== "todo" && headers ? (
+                    <table
+                        className={
+                            "w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" +
+                            (rows.length === 0 ? " h-full" : "")
+                        }
+                    >
                         <thead className="text-xs text-gray-700 uppercase bg-gray-400">
                             <tr>
                                 <th scope="col" className="sticky top-0 px-6 py-3 bg-gray-400">
@@ -50,57 +60,82 @@ const DataTable = ({ taskData, task }) => {
                                 })}
                             </tr>
                         </thead>
-                        <tbody>
-                            {taskData.rows.map((row) => (
-                                <tr
-                                    key={row.id}
-                                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                                >
-                                    <th
-                                        scope="row"
-                                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                        <tbody className={rows.length === 0 ? "h-full" : ""}>
+                            {rows.length > 0 ? (
+                                rows.map((row) => (
+                                    <tr
+                                        key={row.id}
+                                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                                     >
-                                        {rowNo++}
-                                    </th>
-                                    {headers.map((header) => (
-                                        <td
-                                            key={header.key}
-                                            className="px-6 py-4 whitespace-nowrap"
+                                        <th
+                                            scope="row"
+                                            className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                                         >
-                                            {header.key === "url" ? (
-                                                <a
-                                                    target="_blank"
-                                                    href={row[header.key]}
-                                                    rel="noreferrer"
-                                                    className="text-blue-500 flex items-center"
-                                                    title={row[header.key]}
-                                                >
-                                                    Link
-                                                    <svg
-                                                        className="w-4 h-4 ml-1"
-                                                        aria-hidden="true"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke="currentColor"
+                                            {rowNo++}
+                                        </th>
+                                        {headers.map((header) => (
+                                            <td
+                                                key={header.key}
+                                                className="px-6 py-4 whitespace-nowrap"
+                                            >
+                                                {header.key === "url" ? (
+                                                    <a
+                                                        target="_blank"
+                                                        href={row[header.key]}
+                                                        rel="noreferrer"
+                                                        className="text-blue-500 flex items-center"
+                                                        title={row[header.key]}
                                                     >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M9 5l7 7-7 7"
-                                                        />
-                                                    </svg>
-                                                </a>
-                                            ) : (
-                                                row[header.key]
-                                            )}
-                                        </td>
-                                    ))}
+                                                        Link
+                                                        <svg
+                                                            className="w-4 h-4 ml-1"
+                                                            aria-hidden="true"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                            stroke="currentColor"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M9 5l7 7-7 7"
+                                                            />
+                                                        </svg>
+                                                    </a>
+                                                ) : (
+                                                    row[header.key]
+                                                )}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr className="h-full">
+                                    <td
+                                        colSpan={headers.length + 1}
+                                        className="text-center h-full py-4"
+                                    >
+                                        <img
+                                            src={loadingGif}
+                                            alt="Loading..."
+                                            className="mx-auto mb-4 w-40 h-40"
+                                        />
+                                        <span className="text-3xl font-semibold text-gray-700 dark:text-gray-300">
+                                            Scrapping Data...
+                                        </span>
+                                    </td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
+                ) : (
+                    <div className="absolute top-1/2 left-1/2 -translate-y-2/4 -translate-x-2/4">
+                        <img src={folderIcon} alt="No Data" className="mx-auto mb-4 w-40 h-40" />
+                        <span className="text-3xl font-semibold text-gray-700 dark:text-gray-300">
+                            Nothing Scrapped
+                        </span>
+                    </div>
                 )}
             </div>
         </div>

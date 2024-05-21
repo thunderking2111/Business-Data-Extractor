@@ -115,7 +115,7 @@ const Nav = () => {
                             description={`Are you sure you want to delete the '${activeBoard?.name}' project? This action will remove all columns and tasks and cannot be reversed.`}
                             onConfirm={() => {
                                 dispatch(boardRemoved(activeBoardId));
-                                dispatch(setActiveBoardId(undefined));
+                                dispatch(setActiveBoardId(boards?.[0]?.id));
                                 window.electronAPI.removeProjectRecord(activeBoardId);
                             }}
                             open={deleteBoardModalOpen}

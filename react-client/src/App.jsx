@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainPanel from "./components/kanban/app/MainPanel";
@@ -10,6 +10,8 @@ import {
     setActiveBoardId,
 } from "./components/kanban/app/uiState";
 import { selectBoardIds } from "./components/kanban/boards/boardsSlice2";
+import ToasterNotification from "./components/ToasterNotification";
+
 import { useData } from "./data";
 
 import TaskPage from "./components/TaskPage";
@@ -27,6 +29,9 @@ const Home = ({ darkMode }) => {
 };
 
 const App = () => {
+    const [showToaster, setShowToaster] = useState(false);
+    const [toasterMessage, setToasterMessage] = useState("");
+    const [toasterType, setToasterType] = useState("success");
     const processData = useData();
     const darkMode = useSelector(selectIsDarkMode);
     const boardIds = useSelector(selectBoardIds);
@@ -39,6 +44,12 @@ const App = () => {
         window.electronAPI?.receiveProjectData((event, data) => {
             console.log("Called");
             processData(data);
+        });
+        window.electronAPI.receiveExportConfirmation((event, data) => {
+            setShowToaster(true);
+            setToasterMessage(data.message);
+            setToasterType(data.status);
+            console.log(data);
         });
         return () => {
             window.electronAPI?.removeAllListeners();
@@ -60,6 +71,14 @@ const App = () => {
                 <Route exact path="/home" element={<Home darkMode={darkMode} />} />
                 <Route path="/task/:task-id" element={<TaskPage />} />
             </Routes>
+            {showToaster && (
+                <ToasterNotification
+                    message={toasterMessage}
+                    duration={5000}
+                    onClose={() => setShowToaster(false)}
+                    type={toasterType}
+                />
+            )}
         </Router>
     );
 };

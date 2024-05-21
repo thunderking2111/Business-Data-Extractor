@@ -3,25 +3,10 @@ const TaskSchema = require("./entities/TaskSchema");
 const ProjectSchema = require("./entities/ProjectSchema");
 const ScrapData = require("./entities/ScrapData");
 const path = require("path");
-const os = require('os');
 const SettingsSchema = require("./entities/SettingsSchema");
+const { getDocumentsFolderPath } = require("./misc");
 
-const IS_DEV = process.env.IS_DEV ? process.env.IS_DEV === 'true' : false;
-
-function getDocumentsFolderPath() {
-    const homeDir = os.homedir();
-    let documentsPath;
-
-    if (process.platform === 'win32') {
-        documentsPath = path.join(homeDir, 'Documents');
-    } else if (process.platform === 'linux' || process.platform === 'darwin') {
-        documentsPath = path.join(homeDir, 'Documents');
-    } else {
-        throw new Error('Unsupported platform: ' + process.platform);
-    }
-
-    return documentsPath;
-}
+const IS_DEV = process.env.IS_DEV ? process.env.IS_DEV === "true" : false;
 
 const AppDataSource = new DataSource({
     type: "better-sqlite3",
@@ -121,40 +106,40 @@ dataSourceDefered.then(async (db) => {
 //         })
 //         await new Promise(res => setTimeout(res, 10000));
 //     })
-    // .then(async (db) => {
-    //     console.log("")
-    //     console.log("Got something")
-    //     console.log(db)
-    //     console.log("")
-    //     const proj1 = {
-    //         name: "Proj2"
-    //     };
-    //     // const proj1 = new Project(0, "Proj1", []);
-    //     const projrepo = await db.getRepository("Project");
-    //     // await projrepo.save(proj1);
-    //     const task1 = {
-    //         name: "scrap",
-    //         project: 0,
-    //         stage: "todo",
-    //         description: "",
-    //         resource: "google",
-    //         sequence: 1,
-    //     }
-    //     const taskRepo = db.getRepository("Task");
-    //     // await taskRepo.save(task1);
-    //     // await taskRepo.save(task2);
-    //     proj1.tasks = [task1];
-    //     await projrepo.save(proj1);
-    //     const data2 = await AppDataSource.getRepository("Project").find({
-    //         relations: ["tasks"],
-    //     });
-    //     const data = await AppDataSource.getRepository("Task").find({
-    //         relations: ["project"],
-    //     });
-    //     console.log(data);
-    //     console.log(data2);
-    // }).catch(err => {
-    //     console.log(err);
-    // });
+// .then(async (db) => {
+//     console.log("")
+//     console.log("Got something")
+//     console.log(db)
+//     console.log("")
+//     const proj1 = {
+//         name: "Proj2"
+//     };
+//     // const proj1 = new Project(0, "Proj1", []);
+//     const projrepo = await db.getRepository("Project");
+//     // await projrepo.save(proj1);
+//     const task1 = {
+//         name: "scrap",
+//         project: 0,
+//         stage: "todo",
+//         description: "",
+//         resource: "google",
+//         sequence: 1,
+//     }
+//     const taskRepo = db.getRepository("Task");
+//     // await taskRepo.save(task1);
+//     // await taskRepo.save(task2);
+//     proj1.tasks = [task1];
+//     await projrepo.save(proj1);
+//     const data2 = await AppDataSource.getRepository("Project").find({
+//         relations: ["tasks"],
+//     });
+//     const data = await AppDataSource.getRepository("Task").find({
+//         relations: ["project"],
+//     });
+//     console.log(data);
+//     console.log(data2);
+// }).catch(err => {
+//     console.log(err);
+// });
 
 module.exports = { dataSource: AppDataSource, dataSourceDefered };

@@ -30,11 +30,14 @@ const MainPanel = () => {
     const columns = useSelector(selectAllColumns);
     const tasks = activeBoard?.tasks;
 
+    const newTaskHandle = (event, data) => {
+        console.log("New task");
+        console.log(data);
+        const { task } = data;
+        dispatch(taskAdded(task));
+    };
+
     useEffect(() => {
-        const newTaskHandle = (event, data) => {
-            const { task } = data;
-            dispatch(taskAdded(task));
-        };
         window.electronAPI.receiveNewTaskRecord(newTaskHandle);
         return () => {
             window.electronAPI.removeNewTaskListener(newTaskHandle);

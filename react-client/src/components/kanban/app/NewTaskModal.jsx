@@ -24,7 +24,9 @@ const NewTaskModal = ({ taskId, open, closeModal, onClose }) => {
             name: "",
             description: "",
             status: activeColumns[0] ? activeColumns[0].name : "",
-            resource: task ? "" : "Google Maps",
+            resource: task
+                ? RESOURCES.find((t) => t.value === task.resource)?.title
+                : "Google Maps",
         }),
         [activeColumns, task],
     );
@@ -39,6 +41,7 @@ const NewTaskModal = ({ taskId, open, closeModal, onClose }) => {
                 name: task.name,
                 description: task.description,
                 status: activeColumns.find((col) => col.id === task.stage)?.name,
+                resource: RESOURCES.find((t) => t.value === task.resource)?.title,
             });
         } else {
             reset(defaultValues);
@@ -51,6 +54,7 @@ const NewTaskModal = ({ taskId, open, closeModal, onClose }) => {
                 name: data.name,
                 description: data.description,
                 stage: activeColumns.find((column) => column.name === data.status).id,
+                resource: RESOURCES.find((r) => r.title === data.resource).value,
             };
             dispatch(taskUpdated(task, updateData));
             window.electronAPI.updateTaskRecord({ task, changes: updateData });
@@ -111,7 +115,7 @@ recharge the batteries a little."
                         </Listbox>
                     )}
                 />
-                {!task && (
+                {(!task || task.stage === "todo") && (
                     <>
                         <div className="body-md mb-[8px] text-medium-gray">Resource</div>
                         <Controller

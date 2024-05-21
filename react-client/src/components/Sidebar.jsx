@@ -44,13 +44,13 @@ const Sidebar = ({
 
     useEffect(() => {
         if (task?.useProxy && useProxyRef.current) {
-            useProxyRef.current.value = task.useProxy;
+            useProxyRef.current.checked = Boolean(task.useProxy);
         }
     }, [task, useProxyRef]);
 
     useEffect(() => {
-        if (task?.emailMandatody && emailRef.current) {
-            emailRef.current.value = task.emailMandatody;
+        if (task?.emailMandatory && emailRef.current) {
+            emailRef.current.checked = Boolean(task.emailMandatory);
         }
     }, [task, emailRef]);
 
@@ -61,13 +61,14 @@ const Sidebar = ({
     }, [task, delayRef]);
 
     useEffect(() => {
-        if (task?.maxQueryLimit && maxQueryRef.current) {
-            maxQueryRef.current.value = task.maxQueryLimit;
+        if (task?.maxResPerQuery && maxQueryRef.current) {
+            maxQueryRef.current.value = task.maxResPerQuery;
         }
     }, [task, maxQueryRef]);
 
     return (
         <div className="relative flex grow shrink-0 overflow-auto h-screen w-1/4 max-w-[300px] flex-col rounded-xl bg-blue-gray-50 bg-opacity-60 bg-clip-border p-4 text-gray-700 shadow-xl shadow-blue-gray-900/5 gap-3">
+            <div className="heading-xl text-black  dark:text-white">{task?.name}</div>
             <div className="flex grow flex-col gap-3">
                 {["Keywords", "Locations"].map((label) => (
                     <div key={label} className="w-full flex grow">
@@ -89,13 +90,13 @@ const Sidebar = ({
                         <input
                             ref={emailRef}
                             disabled={disabled}
-                            id="checked-checkbox"
+                            id="email-checkbox"
                             type="checkbox"
                             value=""
                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                         />
                         <label
-                            htmlFor="checked-checkbox"
+                            htmlFor="email-checkbox"
                             className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                         >
                             Email mandatory
@@ -105,13 +106,13 @@ const Sidebar = ({
                         <input
                             ref={useProxyRef}
                             disabled={disabled}
-                            id="checked-checkbox"
+                            id="proxy-checkbox"
                             type="checkbox"
                             value=""
                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                         />
                         <label
-                            htmlFor="checked-checkbox"
+                            htmlFor="proxy-checkbox"
                             className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                         >
                             Use Proxies

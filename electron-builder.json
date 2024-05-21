@@ -7,6 +7,8 @@
     "files": [
         "main.js",
         "preload.js",
+        "misc.js",
+        "menu_maker.js",
         "data/**",
         "entities/**",
         "data-source.js",
@@ -39,6 +41,6 @@
     }],
     "asar": false,
     "win": {
-        "target": "nsis"
+        "target": ["nsis", "zip"]
     }
 }

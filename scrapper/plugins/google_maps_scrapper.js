@@ -19,8 +19,26 @@ const HEADERS = [
     { key: "thursday", value: "Thursday" },
     { key: "friday", value: "Friday" },
     { key: "saturday", value: "Saturday" },
-    { key: "sunday", value: "Sunday" }
+    { key: "sunday", value: "Sunday" },
 ];
+
+const RES_SKELTON = {
+    title: "",
+    address: "",
+    phone: "",
+    reviewScore: "",
+    rating: "",
+    website: "",
+    url: "",
+    sunday: "",
+    monday: "",
+    tuesday: "",
+    wednesday: "",
+    thursday: "",
+    friday: "",
+    saturday: "",
+    category: "",
+};
 
 const SELECTORS = {
     searchBoxInput: "input#searchboxinput",
@@ -52,7 +70,7 @@ async function* scrapGoogleMaps(browser, keyword, location, ITEM_SWITCH_DELAY, s
     await page.waitForSelector(SELECTORS.resultList);
     await sleep();
 
-    await setupPageContext(page, { SELECTORS });
+    await setupPageContext(page, { SELECTORS, RES_SKELTON });
 
     // Store the reference to the results section
     const resultsListHandle = await page.$(SELECTORS.resultList);
@@ -80,7 +98,6 @@ async function* scrapGoogleMaps(browser, keyword, location, ITEM_SWITCH_DELAY, s
         window.infoBoxIndex = infoBoxIndex;
     });
 
-    const results = [];
     for (const resultItemHandle of resultItemHandles) {
         const res = await resultItemHandle.evaluate(async (item) => {
             let el;
@@ -102,8 +119,11 @@ async function* scrapGoogleMaps(browser, keyword, location, ITEM_SWITCH_DELAY, s
             if (!el) {
                 return;
             }
-            const res = { url: item.getAttribute("href") };
-            const infoBox = document.querySelectorAll(SELECTORS.infoDisplayBox)[infoBoxIndex];
+            const res = { ...RES_SKELTON };
+            res.url = item.getAttribute("href");
+            const infoBox = document.querySelectorAll(SELECTORS.infoDisplayBox)[
+                window.infoBoxIndex
+            ];
             const titleEl = infoBox.querySelector(SELECTORS.title);
             res.title = titleEl && titleEl.textContent.trim().sanitize();
             const ratingSiblingEl = infoBox.querySelector(SELECTORS.ratingSibling);
@@ -130,14 +150,6 @@ async function* scrapGoogleMaps(browser, keyword, location, ITEM_SWITCH_DELAY, s
             const phoneEl = infoBox.querySelector(SELECTORS.phone);
             res.phone = phoneEl && phoneEl.textContent.sanitize();
             const openingHoursBtn = infoBox.querySelector(SELECTORS.openHoursButton);
-            res.monday = "";
-            res.tuesday = "";
-            res.wednesday = "";
-            res.wednesday = "";
-            res.thursday = "";
-            res.friday = "";
-            res.saturday = "";
-            res.sunday = "";
             if (openingHoursBtn) {
                 let openingHoursTable = undefined;
                 try {
@@ -155,7 +167,8 @@ async function* scrapGoogleMaps(browser, keyword, location, ITEM_SWITCH_DELAY, s
                     for (const row of openingHoursRows) {
                         const tdEls = row.querySelectorAll("td");
                         if (tdEls[0] && tdEls[1]) {
-                            res[tdEls[0].textContent.sanitize().toLowerCase()] = tdEls[1].textContent.sanitize();
+                            res[tdEls[0].textContent.sanitize().toLowerCase()] =
+                                tdEls[1].textContent.sanitize();
                         }
                     }
                 }
@@ -163,14 +176,18 @@ async function* scrapGoogleMaps(browser, keyword, location, ITEM_SWITCH_DELAY, s
             return res;
         });
         if (stopScrapping()) {
-            await Promise.all((await browser.pages()).map(page => page.close()));
+            await Promise.all((await browser.pages()).map((page) => page.close()));
             await browser.close();
             return;
         }
         if (res) {
             yield res;
         }
-        await sleep(ITEM_SWITCH_DELAY === "random" ? Math.floor(Math.random() * 3000) + 1000 + 500 : ITEM_SWITCH_DELAY);
+        await sleep(
+            ITEM_SWITCH_DELAY === "random"
+                ? Math.floor(Math.random() * 3000) + 1000 + 500
+                : ITEM_SWITCH_DELAY,
+        );
     }
     await page.close();
 }

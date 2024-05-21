@@ -37,6 +37,7 @@ const BoardList = () => {
 
     const handleNewProject = (event, project) => {
         dispatch(boardAdded(project));
+        dispatch(setActiveBoardId(project.id));
     };
 
     useEffect(() => {

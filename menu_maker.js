@@ -2,6 +2,7 @@ const { app, dialog, Menu, shell } = require("electron");
 const { dataSource, dataSourceDefered } = require("./data-source");
 
 const IS_MAC = process.platform === "darwin";
+const IS_DEV = process.env.IS_DEV ? process.env.IS_DEV === "true" : false;
 
 const template = [
     ...(IS_MAC
@@ -42,6 +43,7 @@ const template = [
                     await shell.openPath(setting.reportsDir);
                 },
             },
+            { role: "quit" },
         ],
     },
     {
@@ -69,8 +71,27 @@ const template = [
     },
     {
         label: "About",
-        submenu: [{role: 'about'}, {role: 'help'}],
-    }
+        submenu: [{ role: "about" }, { role: "help" }],
+    },
+    ...(IS_DEV
+        ? [
+              {
+                  label: "Dev",
+                  submenu: [
+                      { role: "reload" },
+                      { role: "forceReload" },
+                      { role: "toggleDevTools" },
+                  ],
+              },
+          ]
+        : [{
+            label: "Dev",
+            submenu: [
+                { role: "reload" },
+                { role: "forceReload" },
+                { role: "toggleDevTools" },
+            ],
+        },]),
 ];
 
 module.exports = {

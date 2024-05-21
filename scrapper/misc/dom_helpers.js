@@ -89,7 +89,10 @@ async function scrollResultsList(
 function waitForEl(selector, options = {}) {
     const { delay = CONSTANTS.OBSERVER_DELAY } = options;
     function checkEl() {
-        const el = document.querySelector(selector);
+        let el = document.querySelector(selector);
+        if (el && options.getTextNode) {
+            el = options.getTextNode(el);
+        }
         if (
             el &&
             (!options.text ||

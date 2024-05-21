@@ -4,11 +4,13 @@
     "plugin:prettier/recommended"
   ],
   "parserOptions": {
-    "sourceType": "module",
+    "sourceType": "commonjs",
     "ecmaVersion": 2022
   },
   "env": {
-    "browser": false,
+    "browser": true,
+    "commonjs": true,
+    "node": true,
     "es2022": true
   },
   "rules": {
